@@ -404,12 +404,18 @@ async function aprovarCadastro(userId, email, mercado) {
 async function rejeitarCadastro(userId, nome) {
   if (!confirm(`Rejeitar e excluir o cadastro de "${nome}"?`)) return;
 
-  const { error } = await supabaseClient
+  const { data, error } = await supabaseClient
     .from("perfis")
     .delete()
-    .eq("user_id", userId);
+    .eq("user_id", userId)
+    .select("user_id");
 
   if (error) return alert("Erro ao rejeitar: " + error.message);
+
+  if (!data || data.length === 0) {
+    alert("Nenhum cadastro foi removido. O Supabase provavelmente bloqueou o DELETE por RLS. Rode a policy SQL de DELETE para o admin e tente novamente.");
+    return;
+  }
 
   alert("Cadastro rejeitado.");
   carregarPendentes();
