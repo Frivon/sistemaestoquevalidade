@@ -354,18 +354,32 @@ async function carregarPendentes() {
     return;
   }
 
+  // Verificar quais já tiveram mercado associado (desativados vs novos)
+  const userIds = data.map(p => p.user_id);
+  const { data: mercados } = await supabaseClient
+    .from("usuario_mercados")
+    .select("user_id")
+    .in("user_id", userIds);
+
+  const jaAprovados = new Set((mercados || []).map(m => m.user_id));
+
   lista.innerHTML = data.map(p => {
     const dataFmt = new Date(p.data_cadastro).toLocaleDateString("pt-BR");
+    const foiDesativado = jaAprovados.has(p.user_id);
     return `
-      <div style="background:#111827; border:1.5px solid #374151; border-radius:12px; padding:16px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px">
+      <div style="background:#111827; border:1.5px solid ${foiDesativado ? 'rgba(245,158,11,0.3)' : '#374151'}; border-radius:12px; padding:16px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px">
         <div>
-          <strong style="color:#e5e7eb; font-size:15px">${p.nome_estabelecimento || "-"}</strong><br>
+          <strong style="color:#e5e7eb; font-size:15px">${p.nome_estabelecimento || "-"}</strong>
+          ${foiDesativado ? '<span style="color:#f59e0b; font-size:11px; margin-left:8px">⚠️ DESATIVADO</span>' : '<span style="color:#3b82f6; font-size:11px; margin-left:8px">🆕 NOVO</span>'}<br>
           <span style="color:#6b7280; font-size:13px">📧 ${p.email}</span><br>
           <span style="color:#6b7280; font-size:13px">🏪 ${p.mercado || "-"}</span><br>
           <span style="color:#6b7280; font-size:12px">📅 ${dataFmt}</span>
         </div>
         <div style="display:flex; gap:8px">
-          <button class="btn btn-green" style="padding:8px 16px; font-size:13px" onclick="aprovarCadastro('${p.user_id}', '${p.email}', '${p.mercado || ""}')">✅ Aprovar</button>
+          ${foiDesativado
+            ? `<button class="btn btn-green" style="padding:8px 16px; font-size:13px" onclick="reativarCliente('${p.user_id}', '${p.email}')">🔄 Reativar</button>`
+            : `<button class="btn btn-green" style="padding:8px 16px; font-size:13px" onclick="aprovarCadastro('${p.user_id}', '${p.email}', '${p.mercado || ""}')">✅ Aprovar</button>`
+          }
           <button class="btn btn-red" style="padding:8px 16px; font-size:13px" onclick="rejeitarCadastro('${p.user_id}', '${p.nome_estabelecimento}')">❌ Rejeitar</button>
         </div>
       </div>
@@ -467,6 +481,24 @@ async function desativarCliente(userId, nome) {
   if (error) return alert("Erro ao desativar: " + error.message);
 
   alert("Cliente desativado.");
+  carregarPendentes();
+  carregarClientesAtivos();
+}
+
+// ==========================
+// 🔄 REATIVAR CLIENTE
+// ==========================
+async function reativarCliente(userId, email) {
+  if (!confirm(`Reativar o acesso de ${email}?`)) return;
+
+  const { error } = await supabaseClient
+    .from("perfis")
+    .update({ aprovado: true })
+    .eq("user_id", userId);
+
+  if (error) return alert("Erro ao reativar: " + error.message);
+
+  alert(`✅ ${email} reativado com sucesso!`);
   carregarPendentes();
   carregarClientesAtivos();
 }
@@ -575,10 +607,6 @@ async function salvarProduto() {
     return;
   }
 
-  if (!mercado) {
-    alert("Selecione um mercado antes de salvar!");
-    return;
-  }
 
   const { error } = await supabaseClient
     .from("produtos")
