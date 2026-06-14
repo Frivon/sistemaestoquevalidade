@@ -409,24 +409,11 @@ async function rejeitarCadastro(userId, nome) {
   });
 
   if (authError) {
-    alert("Erro ao remover usuário do Auth: " + authError.message);
+    alert("Erro ao remover usuário: " + authError.message);
     return;
   }
 
-  const { data, error } = await supabaseClient
-    .from("perfis")
-    .delete()
-    .eq("user_id", userId)
-    .select("user_id");
-
-  if (error) return alert("Erro ao rejeitar: " + error.message);
-
-  if (!data || data.length === 0) {
-    alert("Nenhum cadastro foi removido. O Supabase provavelmente bloqueou o DELETE por RLS. Rode a policy SQL de DELETE para o admin e tente novamente.");
-    return;
-  }
-
-  alert("Cadastro rejeitado.");
+  alert("✅ Cadastro rejeitado e usuário removido!");
   carregarPendentes();
 }
 
