@@ -89,6 +89,27 @@ async function fazerLogin() {
     return;
   }
 
+  // Verificar se o perfil está aprovado (admin pula verificação)
+  const isAdmin = email === "wesley.thoy@hotmail.com";
+
+  if (!isAdmin) {
+    const { data: perfil } = await supabaseClient
+      .from("perfis")
+      .select("aprovado")
+      .eq("user_id", data.user.id)
+      .limit(1);
+
+    if (!perfil || perfil.length === 0 || !perfil[0].aprovado) {
+      await supabaseClient.auth.signOut();
+      erroDiv.style.display = "block";
+      erroDiv.style.borderColor = "rgba(245, 158, 11, 0.3)";
+      erroDiv.style.background = "rgba(245, 158, 11, 0.1)";
+      erroDiv.style.color = "#fbbf24";
+      erroDiv.textContent = "⏳ Seu cadastro ainda está aguardando aprovação do administrador.";
+      return;
+    }
+  }
+
   usuarioAtual = data.user;
   mostrarSistema();
 }
@@ -100,12 +121,25 @@ async function fazerCadastro() {
   const email = document.getElementById("loginEmail").value.trim();
   const senha = document.getElementById("loginSenha").value;
   const nome = document.getElementById("loginNome")?.value?.trim();
+  const mercado = document.getElementById("loginMercado")?.value?.trim();
   const erroDiv = document.getElementById("loginErro");
 
   console.log("📝 Tentando cadastrar:", email);
 
   if (!email || !senha) {
     erroDiv.textContent = "Preencha email e senha!";
+    erroDiv.style.display = "block";
+    return;
+  }
+
+  if (!nome) {
+    erroDiv.textContent = "Preencha o nome do estabelecimento!";
+    erroDiv.style.display = "block";
+    return;
+  }
+
+  if (!mercado) {
+    erroDiv.textContent = "Preencha o nome do mercado!";
     erroDiv.style.display = "block";
     return;
   }
@@ -135,21 +169,27 @@ async function fazerCadastro() {
       return;
     }
 
-    // Verificar se precisa confirmar email
-    if (data.user && !data.session) {
+    // Salvar perfil como pendente
+    if (data.user) {
+      await supabaseClient.from("perfis").insert([{
+        user_id: data.user.id,
+        email: email,
+        nome_estabelecimento: nome,
+        mercado: mercado,
+        aprovado: false
+      }]);
+
+      // Fazer logout (não pode usar o sistema ainda)
+      await supabaseClient.auth.signOut();
+
       erroDiv.style.display = "block";
       erroDiv.style.borderColor = "rgba(16, 185, 129, 0.3)";
       erroDiv.style.background = "rgba(16, 185, 129, 0.1)";
       erroDiv.style.color = "#34d399";
-      erroDiv.textContent = "Conta criada! Verifique seu email para confirmar. Depois faça login.";
+      erroDiv.textContent = "✅ Cadastro enviado! Aguarde a aprovação do administrador para acessar o sistema.";
       return;
     }
 
-    // Login automático após cadastro
-    if (data.session) {
-      usuarioAtual = data.user;
-      mostrarSistema();
-    }
   } catch (err) {
     console.error("Erro no cadastro:", err);
     erroDiv.textContent = "Erro ao criar conta: " + err.message;
@@ -264,6 +304,14 @@ async function mostrarSistema() {
   // Carregar mercados do usuário
   await carregarMercadosDoUsuario();
 
+  // Mostrar painel admin se for o Wesley
+  const isAdmin = usuarioAtual.email === "wesley.thoy@hotmail.com";
+  const painelAdmin = document.getElementById("painelAdmin");
+  if (isAdmin && painelAdmin) {
+    painelAdmin.style.display = "block";
+    carregarPendentes();
+  }
+
   // Inicializar botões do sistema
   document.getElementById("btnSalvar").addEventListener("click", salvarProduto);
   document.getElementById("btnAtualizar").addEventListener("click", atualizarProduto);
@@ -280,6 +328,84 @@ async function mostrarSistema() {
   });
 
   carregarProdutos();
+}
+
+// ==========================
+// 👑 PAINEL ADMIN — CARREGAR PENDENTES
+// ==========================
+async function carregarPendentes() {
+  const { data, error } = await supabaseClient
+    .from("perfis")
+    .select("*")
+    .eq("aprovado", false)
+    .order("data_cadastro", { ascending: false });
+
+  const lista = document.getElementById("listaPendentes");
+
+  if (error || !data || data.length === 0) {
+    lista.innerHTML = '<div style="color:#6b7280; font-size:14px; padding:8px 0">Nenhum cadastro pendente. ✅</div>';
+    return;
+  }
+
+  lista.innerHTML = data.map(p => {
+    const dataFmt = new Date(p.data_cadastro).toLocaleDateString("pt-BR");
+    return `
+      <div style="background:#111827; border:1.5px solid #374151; border-radius:12px; padding:16px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px">
+        <div>
+          <strong style="color:#e5e7eb; font-size:15px">${p.nome_estabelecimento || "-"}</strong><br>
+          <span style="color:#6b7280; font-size:13px">📧 ${p.email}</span><br>
+          <span style="color:#6b7280; font-size:13px">🏪 ${p.mercado || "-"}</span><br>
+          <span style="color:#6b7280; font-size:12px">📅 ${dataFmt}</span>
+        </div>
+        <div style="display:flex; gap:8px">
+          <button class="btn btn-green" style="padding:8px 16px; font-size:13px" onclick="aprovarCadastro('${p.user_id}', '${p.email}', '${p.mercado || ""}')">✅ Aprovar</button>
+          <button class="btn btn-red" style="padding:8px 16px; font-size:13px" onclick="rejeitarCadastro('${p.user_id}', '${p.nome_estabelecimento}')">❌ Rejeitar</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+// ==========================
+// ✅ APROVAR CADASTRO
+// ==========================
+async function aprovarCadastro(userId, email, mercado) {
+  if (!confirm(`Aprovar cadastro de ${email}?`)) return;
+
+  // Atualizar perfil como aprovado
+  const { error: errPerfil } = await supabaseClient
+    .from("perfis")
+    .update({ aprovado: true })
+    .eq("user_id", userId);
+
+  if (errPerfil) return alert("Erro ao aprovar: " + errPerfil.message);
+
+  // Criar associação com o mercado
+  if (mercado) {
+    await supabaseClient
+      .from("usuario_mercados")
+      .insert([{ user_id: userId, mercado: mercado }]);
+  }
+
+  alert(`✅ ${email} aprovado com sucesso!`);
+  carregarPendentes();
+}
+
+// ==========================
+// ❌ REJEITAR CADASTRO
+// ==========================
+async function rejeitarCadastro(userId, nome) {
+  if (!confirm(`Rejeitar e excluir o cadastro de "${nome}"?`)) return;
+
+  const { error } = await supabaseClient
+    .from("perfis")
+    .delete()
+    .eq("user_id", userId);
+
+  if (error) return alert("Erro ao rejeitar: " + error.message);
+
+  alert("Cadastro rejeitado.");
+  carregarPendentes();
 }
 
 // ==========================
