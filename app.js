@@ -404,6 +404,15 @@ async function aprovarCadastro(userId, email, mercado) {
 async function rejeitarCadastro(userId, nome) {
   if (!confirm(`Rejeitar e excluir o cadastro de "${nome}"?`)) return;
 
+  const { error: authError } = await supabaseClient.rpc("admin_delete_auth_user", {
+    target_user_id: userId
+  });
+
+  if (authError) {
+    alert("Erro ao remover usuário do Auth: " + authError.message);
+    return;
+  }
+
   const { data, error } = await supabaseClient
     .from("perfis")
     .delete()
