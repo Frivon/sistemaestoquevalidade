@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual do Sistema de Estoque — Aliança</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #f8fafc;
+    color: #1e293b;
+    line-height: 1.7;
+    font-size: 15px;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #1e3a5f, #2563eb);
+    color: white;
+    padding: 50px 40px;
+    text-align: center;
+  }
+
+  .header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+
+  .header p {
+    font-size: 16px;
+    opacity: 0.85;
+  }
+
+  .header .version {
+    margin-top: 12px;
+    font-size: 12px;
+    opacity: 0.6;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* Container */
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 24px 60px;
+  }
+
+  /* Table of contents */
+  .toc {
+    background: white;
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin-bottom: 40px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    border: 1px solid #e2e8f0;
+  }
+
+  .toc h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: #1e3a5f;
+  }
+
+  .toc ol {
+    padding-left: 20px;
+  }
+
+  .toc li {
+    margin-bottom: 6px;
+  }
+
+  .toc a {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .toc a:hover {
+    text-decoration: underline;
+  }
+
+  /* Section */
+  .section {
+    background: white;
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    border: 1px solid #e2e8f0;
+    page-break-inside: avoid;
+  }
+
+  .section h2 {
+    font-size: 20px;
+    font-weight: 800;
+    color: #1e3a5f;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e2e8f0;
+  }
+
+  .section h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #334155;
+    margin-top: 20px;
+    margin-bottom: 8px;
+  }
+
+  .section p {
+    margin-bottom: 10px;
+  }
+
+  .section ul, .section ol {
+    padding-left: 22px;
+    margin-bottom: 12px;
+  }
+
+  .section li {
+    margin-bottom: 4px;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 16px;
+    font-size: 14px;
+  }
+
+  th {
+    background: #f1f5f9;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 700;
+    color: #334155;
+    border: 1px solid #e2e8f0;
+  }
+
+  td {
+    padding: 10px 14px;
+    border: 1px solid #e2e8f0;
+  }
+
+  tr:nth-child(even) td {
+    background: #f8fafc;
+  }
+
+  /* Alert box */
+  .alert {
+    background: #fef3c7;
+    border-left: 4px solid #f59e0b;
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
+    margin: 12px 0;
+    font-size: 14px;
+    color: #92400e;
+  }
+
+  .alert strong {
+    color: #78350f;
+  }
+
+  /* Info box */
+  .info {
+    background: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
+    margin: 12px 0;
+    font-size: 14px;
+    color: #1e40af;
+  }
+
+  /* Code / kbd */
+  kbd {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 13px;
+    font-family: monospace;
+  }
+
+  /* FAQ */
+  .faq-item {
+    margin-bottom: 16px;
+  }
+
+  .faq-item .q {
+    font-weight: 700;
+    color: #1e3a5f;
+    margin-bottom: 4px;
+  }
+
+  .faq-item .a {
+    color: #475569;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 30px;
+    color: #94a3b8;
+    font-size: 13px;
+    border-top: 1px solid #e2e8f0;
+    margin-top: 20px;
+  }
+
+  .footer strong {
+    color: #2563eb;
+  }
+
+  /* Print */
+  @media print {
+    body { background: white; font-size: 12px; }
+    .header { padding: 30px; }
+    .container { padding: 20px 0; }
+    .section { box-shadow: none; border: 1px solid #ddd; page-break-inside: avoid; }
+    .toc { page-break-after: always; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📘 Manual do Sistema de Estoque</h1>
+  <p>Guia completo de uso para gestão de produtos e controle de validade</p>
+  <div class="version">Versão 1.0 — Junho/2026</div>
+</div>
+
+<div class="container">
+
+  <!-- SUMÁRIO -->
+  <div class="toc">
+    <h2>📑 Sumário</h2>
+    <ol>
+      <li><a href="#login">Tela de Login</a></li>
+      <li><a href="#mercado">Seletor de Mercado</a></li>
+      <li><a href="#dashboard">Resumo do Estoque (Dashboard)</a></li>
+      <li><a href="#adicionar">Adicionar Produto</a></li>
+      <li><a href="#scanner">Escanear Código de Barras</a></li>
+      <li><a href="#editar">Editar Produto</a></li>
+      <li><a href="#excluir">Excluir Produto</a></li>
+      <li><a href="#alertas">Alertas</a></li>
+      <li><a href="#lista">Lista de Estoque</a></li>
+      <li><a href="#exportar">Exportar Relatório (CSV)</a></li>
+      <li><a href="#seguranca">Segurança e Privacidade</a></li>
+      <li><a href="#celular">Uso no Celular</a></li>
+      <li><a href="#faq">Perguntas Frequentes</a></li>
+      <li><a href="#suporte">Suporte</a></li>
+    </ol>
+  </div>
+
+  <!-- 1. LOGIN -->
+  <div class="section" id="login">
+    <h2>1. 🔐 Tela de Login</h2>
+    <p>A primeira tela do sistema. Aqui o usuário acessa sua conta ou cria uma nova.</p>
+
+    <h3>Como fazer login:</h3>
+    <ol>
+      <li>Digite seu <strong>email</strong> e <strong>senha</strong></li>
+      <li>Clique em <strong>🔑 Entrar</strong></li>
+      <li>O sistema carrega automaticamente os dados do seu mercado</li>
+    </ol>
+
+    <h3>Como criar uma conta:</h3>
+    <ol>
+      <li>Clique em <strong>"Criar conta"</strong> (link abaixo do botão Entrar)</li>
+      <li>Preencha <strong>email</strong>, <strong>senha</strong> (mínimo 6 caracteres) e <strong>nome do estabelecimento</strong></li>
+      <li>Clique em <strong>📝 Criar Conta</strong></li>
+      <li>O acesso é imediato após o cadastro</li>
+    </ol>
+
+    <h3>Esqueci minha senha:</h3>
+    <ol>
+      <li>Digite seu <strong>email</strong> no campo de login</li>
+      <li>Clique em <strong>"Esqueci minha senha"</strong></li>
+      <li>Um email de recuperação será enviado para redefinir a senha</li>
+    </ol>
+
+    <h3>Botão Sair:</h3>
+    <ul>
+      <li>No topo do sistema, clique em <strong>🚪 Sair</strong> para desconectar</li>
+      <li>Seus dados ficam salvos e protegidos para o próximo acesso</li>
+    </ul>
+  </div>
+
+  <!-- 2. MERCADO -->
+  <div class="section" id="mercado">
+    <h2>2. 🏪 Seletor de Mercado</h2>
+    <p>Logo abaixo do cabeçalho, aparece o <strong>seletor de mercado</strong>.</p>
+    <ul>
+      <li>Cada usuário vê <strong>apenas os mercados associados</strong> à sua conta</li>
+      <li>Se tiver acesso a mais de um mercado, pode alternar entre eles</li>
+      <li>A opção <strong>"Todos os mercados"</strong> mostra os produtos de todas as unidades</li>
+      <li>Ao selecionar um mercado, <strong>todo o sistema filtra automaticamente</strong>: dashboard, alertas, lista e exportação</li>
+    </ul>
+  </div>
+
+  <!-- 3. DASHBOARD -->
+  <div class="section" id="dashboard">
+    <h2>3. 📊 Resumo do Estoque (Dashboard)</h2>
+    <p>Painel com 4 indicadores em tempo real:</p>
+
+    <table>
+      <tr><th>Indicador</th><th>Cor</th><th>Significado</th></tr>
+      <tr><td><strong>Total</strong></td><td>Cinza</td><td>Quantidade total de produtos cadastrados</td></tr>
+      <tr><td><strong>Vencidos</strong></td><td>Vermelho</td><td>Produtos com validade expirada</td></tr>
+      <tr><td><strong>Críticos</strong></td><td>Amarelo</td><td>Produtos que vencem nos próximos <strong>25 dias</strong></td></tr>
+      <tr><td><strong>OK</strong></td><td>Verde</td><td>Produtos com validade acima de 25 dias</td></tr>
+    </table>
+
+    <p>Os números atualizam automaticamente sempre que um produto é adicionado, editado ou excluído.</p>
+  </div>
+
+  <!-- 4. ADICIONAR -->
+  <div class="section" id="adicionar">
+    <h2>4. ➕ Adicionar Produto</h2>
+    <p>Seção para cadastrar novos produtos no estoque.</p>
+
+    <h3>Campos:</h3>
+    <table>
+      <tr><th>Campo</th><th>Descrição</th><th>Obrigatório</th></tr>
+      <tr><td>Código de Barras</td><td>Código numérico do produto (digitado ou escaneado)</td><td>✅ Sim</td></tr>
+      <tr><td>Nome do Produto</td><td>Nome descritivo (ex: "Coca-Cola 2,5L")</td><td>✅ Sim</td></tr>
+      <tr><td>Fornecedor</td><td>Nome do fornecedor (ex: "Coca-Cola")</td><td>Não</td></tr>
+      <tr><td>Lote</td><td>Identificação do lote (ex: "A24", "B12")</td><td>✅ Sim</td></tr>
+      <tr><td>Quantidade</td><td>Quantidade de unidades</td><td>Não</td></tr>
+      <tr><td>Validade</td><td>Data de validade do produto</td><td>✅ Sim</td></tr>
+    </table>
+
+    <h3>Preenchimento automático:</h3>
+    <ul>
+      <li>Ao digitar ou escanear um <strong>código de barras já cadastrado</strong> no catálogo, o sistema preenche automaticamente o <strong>nome</strong> e o <strong>fornecedor</strong></li>
+      <li>O campo fica com borda <strong>verde</strong> por 2 segundos quando encontra o produto</li>
+      <li>Campos <strong>lote</strong>, <strong>quantidade</strong> e <strong>validade</strong> sempre devem ser preenchidos manualmente</li>
+    </ul>
+
+    <h3>Como salvar:</h3>
+    <ol>
+      <li>Preencha os campos</li>
+      <li>Certifique-se de que um <strong>mercado está selecionado</strong> no seletor</li>
+      <li>Clique em <strong>💾 Salvar Produto</strong></li>
+      <li>O produto aparece imediatamente na lista e no dashboard</li>
+    </ol>
+  </div>
+
+  <!-- 5. SCANNER -->
+  <div class="section" id="scanner">
+    <h2>5. 📷 Escanear Código de Barras</h2>
+    <p>O sistema possui scanner integrado que usa a <strong>câmera traseira</strong> do celular.</p>
+
+    <h3>Como usar:</h3>
+    <ol>
+      <li>Clique em <strong>📷 Escanear</strong></li>
+      <li>Autorize o uso da câmera (aparece apenas na primeira vez)</li>
+      <li>Aponte a câmera para o <strong>código de barras</strong> do produto</li>
+      <li>O código é lido automaticamente e preenchido no campo</li>
+      <li>Se o produto estiver no catálogo, nome e fornecedor preenchem sozinhos</li>
+    </ol>
+
+    <h3>Para parar o scanner:</h3>
+    <ul>
+      <li>Clique em <strong>⛔ Parar</strong> para fechar a câmera</li>
+    </ul>
+
+    <div class="info">
+      <strong>Requisitos:</strong> O sistema deve estar acessado via <strong>HTTPS</strong> (obrigatório para a câmera funcionar). Funciona em qualquer celular com câmera.
+    </div>
+  </div>
+
+  <!-- 6. EDITAR -->
+  <div class="section" id="editar">
+    <h2>6. ✏️ Editar Produto</h2>
+    <p>Seção para alterar dados de um produto já cadastrado.</p>
+
+    <h3>Como editar:</h3>
+    <ol>
+      <li>Na lista de produtos, clique no botão <strong>✏️ Editar</strong> do produto desejado</li>
+      <li>Os dados preenchem automaticamente nos campos de edição (código, lote, validade)</li>
+      <li>Altere o que for necessário</li>
+      <li>Clique em <strong>✅ Atualizar</strong></li>
+      <li>Uma mensagem confirma "Produto atualizado com sucesso!"</li>
+    </ol>
+
+    <h3>Campos editáveis:</h3>
+    <ul>
+      <li>Código de barras</li>
+      <li>Lote</li>
+      <li>Data de validade</li>
+    </ul>
+  </div>
+
+  <!-- 7. EXCLUIR -->
+  <div class="section" id="excluir">
+    <h2>7. 🗑️ Excluir Produto</h2>
+    <p>Cada produto na lista possui um botão <strong>🗑️ Excluir</strong>.</p>
+
+    <h3>Como excluir:</h3>
+    <ol>
+      <li>Clique em <strong>🗑️ Excluir</strong> no card do produto</li>
+      <li>Uma mensagem de confirmação aparece: <em>"Tem certeza que deseja excluir [nome]?"</em></li>
+      <li>Clique em <strong>OK</strong> para confirmar ou <strong>Cancelar</strong> para manter</li>
+      <li>O produto é removido permanentemente do estoque</li>
+    </ol>
+
+    <div class="alert">
+      <strong>⚠️ Atenção:</strong> A exclusão é definitiva. O produto não pode ser recuperado após confirmação.
+    </div>
+  </div>
+
+  <!-- 8. ALERTAS -->
+  <div class="section" id="alertas">
+    <h2>8. ⚠️ Alertas</h2>
+    <p>Painel com 3 categorias de alerta. <strong>Clicável</strong> — ao clicar, expande e mostra os detalhes dos produtos.</p>
+
+    <h3>❌ Vencidos</h3>
+    <ul>
+      <li>Produtos com validade <strong>expirada</strong></li>
+      <li>Ao clicar, mostra cada produto com "venceu há X dia(s)"</li>
+      <li>Ação recomendada: <strong>retirar do estoque imediatamente</strong></li>
+    </ul>
+
+    <h3>⚠️ Críticos</h3>
+    <ul>
+      <li>Produtos que vencem nos <strong>próximos 25 dias</strong></li>
+      <li>Ao clicar, mostra cada produto com "vence em X dia(s)" ou "vence hoje!"</li>
+      <li>Ação recomendada: <strong>priorizar a venda ou fazer promoção</strong></li>
+    </ul>
+
+    <h3>✅ OK</h3>
+    <ul>
+      <li>Produtos com validade <strong>acima de 25 dias</strong></li>
+      <li>Ao clicar, mostra cada produto com "X dia(s) restantes"</li>
+      <li>Estoque saudável, sem ação necessária</li>
+    </ul>
+
+    <h3>Informações exibidas em cada alerta:</h3>
+    <ul>
+      <li>Nome do produto</li>
+      <li>Fornecedor</li>
+      <li>Lote</li>
+      <li>Data de validade</li>
+      <li>Dias restantes ou dias vencidos</li>
+    </ul>
+  </div>
+
+  <!-- 9. LISTA -->
+  <div class="section" id="lista">
+    <h2>9. 📋 Lista de Estoque</h2>
+    <p>Exibe todos os produtos cadastrados em formato de <strong>cards</strong>.</p>
+
+    <h3>Informações de cada card:</h3>
+    <ul>
+      <li>Nome do produto</li>
+      <li>Fornecedor</li>
+      <li>Mercado</li>
+      <li>Código de barras</li>
+      <li>Lote</li>
+      <li>Quantidade</li>
+      <li>Data de validade</li>
+      <li>Botões Editar e Excluir</li>
+    </ul>
+
+    <h3>Cores dos cards:</h3>
+    <table>
+      <tr><th>Cor da borda</th><th>Significado</th></tr>
+      <tr><td>🟢 Verde</td><td>Produto OK (validade acima de 25 dias)</td></tr>
+      <tr><td>🟡 Amarelo</td><td>Produto crítico (vence em até 25 dias)</td></tr>
+      <tr><td>🔴 Vermelho</td><td>Produto vencido</td></tr>
+    </table>
+
+    <h3>Busca / Filtro:</h3>
+    <ul>
+      <li>No topo da lista há um <strong>campo de busca</strong> 🔍</li>
+      <li>Digite qualquer palavra para filtrar em tempo real</li>
+      <li>Busca por: <strong>nome, código de barras, lote ou fornecedor</strong></li>
+      <li>A filtragem é instantânea conforme você digita</li>
+    </ul>
+  </div>
+
+  <!-- 10. EXPORTAR -->
+  <div class="section" id="exportar">
+    <h2>10. 📊 Exportar Relatório (CSV)</h2>
+    <p>O sistema permite exportar os dados do estoque em formato <strong>CSV</strong> (abre no Excel, Google Sheets, etc).</p>
+
+    <h3>Como exportar:</h3>
+    <ol>
+      <li>Selecione o <strong>mercado</strong> desejado no seletor (ou "Todos")</li>
+      <li>Clique no botão <strong>📊 Exportar CSV</strong> (canto superior direito da lista)</li>
+      <li>O arquivo é baixado automaticamente</li>
+    </ol>
+
+    <h3>Conteúdo do relatório:</h3>
+    <table>
+      <tr><th>Coluna</th><th>Descrição</th></tr>
+      <tr><td>Nome</td><td>Nome do produto</td></tr>
+      <tr><td>Fornecedor</td><td>Nome do fornecedor</td></tr>
+      <tr><td>Mercado</td><td>Mercado associado</td></tr>
+      <tr><td>Código de Barras</td><td>Código do produto</td></tr>
+      <tr><td>Lote</td><td>Identificação do lote</td></tr>
+      <tr><td>Quantidade</td><td>Quantidade em estoque</td></tr>
+      <tr><td>Validade</td><td>Data de validade (DD/MM/AAAA)</td></tr>
+      <tr><td>Status</td><td>OK, CRÍTICO ou VENCIDO</td></tr>
+    </table>
+
+    <p><strong>Nome do arquivo:</strong> <kbd>estoque_[mercado]_[data].csv</kbd></p>
+    <p>Exemplo: <kbd>estoque_Mercado Aliança_2026-06-14.csv</kbd></p>
+  </div>
+
+  <!-- 11. SEGURANÇA -->
+  <div class="section" id="seguranca">
+    <h2>11. 🔒 Segurança e Privacidade</h2>
+
+    <h3>Isolamento de dados:</h3>
+    <ul>
+      <li>Cada usuário vê <strong>apenas seus próprios produtos</strong></li>
+      <li>Nenhum cliente tem acesso aos dados de outro cliente</li>
+      <li>A separação é garantida no nível do banco de dados</li>
+    </ul>
+
+    <h3>Sessão:</h3>
+    <ul>
+      <li>O login é mantido mesmo se fechar o navegador</li>
+      <li>Para desconectar, use o botão <strong>🚪 Sair</strong></li>
+    </ul>
+
+    <h3>Senhas:</h3>
+    <ul>
+      <li>Mínimo de 6 caracteres</li>
+      <li>Armazenadas de forma criptografada (nunca são visíveis)</li>
+      <li>Recuperação por email disponível</li>
+    </ul>
+  </div>
+
+  <!-- 12. CELULAR -->
+  <div class="section" id="celular">
+    <h2>12. 📱 Uso no Celular</h2>
+    <p>O sistema é <strong>100% responsivo</strong> e funciona em qualquer celular ou tablet.</p>
+
+    <h3>Dicas para uso mobile:</h3>
+    <ul>
+      <li>Adicione o site à <strong>tela inicial</strong> do celular para acesso rápido</li>
+      <li>Use o <strong>scanner</strong> para agilizar o cadastro de produtos</li>
+      <li>A câmera traseira é usada automaticamente para leitura de códigos</li>
+    </ul>
+
+    <h3>Como adicionar à tela inicial:</h3>
+
+    <h3>Android (Chrome):</h3>
+    <ol>
+      <li>Abra o sistema no Chrome</li>
+      <li>Toque nos 3 pontinhos (⋮) no canto superior</li>
+      <li>Selecione "Adicionar à tela inicial"</li>
+    </ol>
+
+    <h3>iPhone (Safari):</h3>
+    <ol>
+      <li>Abra o sistema no Safari</li>
+      <li>Toque no botão de compartilhar (📤)</li>
+      <li>Selecione "Adicionar à Tela de Início"</li>
+    </ol>
+  </div>
+
+  <!-- 13. FAQ -->
+  <div class="section" id="faq">
+    <h2>13. ❓ Perguntas Frequentes</h2>
+
+    <div class="faq-item">
+      <div class="q">P: Posso usar em mais de um mercado com o mesmo login?</div>
+      <div class="a">R: Sim, se o administrador associar mais de um mercado ao seu login, o seletor mostrará todas as opções.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="q">P: Se eu excluir um produto por engano, consigo recuperar?</div>
+      <div class="a">R: Não. A exclusão é definitiva. Sempre confira o nome do produto na mensagem de confirmação antes de excluir.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="q">P: O scanner não funciona, o que fazer?</div>
+      <div class="a">R: Verifique se o sistema está acessado por HTTPS e se você autorizou o uso da câmera no navegador.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="q">P: Posso acessar de vários dispositivos ao mesmo tempo?</div>
+      <div class="a">R: Sim, o sistema é acessível de qualquer dispositivo com navegador.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="q">P: Como cadastro um produto novo no catálogo?</div>
+      <div class="a">R: Entre em contato com o suporte para inclusão de novos produtos no catálogo de códigos de barras.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="q">P: O relatório CSV abre no Excel?</div>
+      <div class="a">R: Sim. Basta dar duplo clique no arquivo baixado ou abrir pelo Excel/Google Sheets.</div>
+    </div>
+  </div>
+
+  <!-- 14. SUPORTE -->
+  <div class="section" id="suporte">
+    <h2>14. 📞 Suporte</h2>
+    <p>Em caso de dúvidas ou problemas, entre em contato:</p>
+    <ul>
+      <li><strong>Desenvolvedor:</strong> WesleyDevOps</li>
+      <li><strong>Email:</strong> wesley.thoy@hotmail.com</li>
+    </ul>
+  </div>
+
+</div>
+
+<div class="footer">
+  Sistema de Estoque Aliança — v1.0 | Desenvolvido por <strong>WesleyDevOps</strong> | Junho/2026
+</div>
+
+</body>
+</html>
