@@ -301,33 +301,40 @@ async function mostrarSistema() {
   document.getElementById("sistemaPrincipal").style.display = "block";
   document.getElementById("usuarioEmail").textContent = usuarioAtual.email;
 
-  // Carregar mercados do usuário
-  await carregarMercadosDoUsuario();
-
-  // Mostrar painel admin se for o Wesley
   const isAdmin = usuarioAtual.email === "wesley.thoy@hotmail.com";
-  const painelAdmin = document.getElementById("painelAdmin");
-  if (isAdmin && painelAdmin) {
-    painelAdmin.style.display = "block";
+
+  // Áreas do sistema
+  const areaAdmin = document.getElementById("areaAdmin");
+  const areaProdutos = document.getElementById("areaProdutos");
+
+  if (isAdmin) {
+    // Admin vê APENAS painel admin
+    if (areaAdmin) areaAdmin.style.display = "block";
+    if (areaProdutos) areaProdutos.style.display = "none";
     carregarPendentes();
+    carregarClientesAtivos();
+  } else {
+    // Cliente vê APENAS produtos
+    if (areaAdmin) areaAdmin.style.display = "none";
+    if (areaProdutos) areaProdutos.style.display = "block";
+
+    await carregarMercadosDoUsuario();
+
+    document.getElementById("btnSalvar").addEventListener("click", salvarProduto);
+    document.getElementById("btnAtualizar").addEventListener("click", atualizarProduto);
+    document.getElementById("btnScanner").addEventListener("click", iniciarScanner);
+    document.getElementById("btnPararScanner")?.addEventListener("click", pararScanner);
+    document.getElementById("seletorMercado")?.addEventListener("change", carregarProdutos);
+
+    const inputCodigo = document.getElementById("codigoBarras");
+    let timerBusca = null;
+    inputCodigo.addEventListener("input", () => {
+      clearTimeout(timerBusca);
+      timerBusca = setTimeout(() => buscarPorCodigo(inputCodigo.value.trim()), 500);
+    });
+
+    carregarProdutos();
   }
-
-  // Inicializar botões do sistema
-  document.getElementById("btnSalvar").addEventListener("click", salvarProduto);
-  document.getElementById("btnAtualizar").addEventListener("click", atualizarProduto);
-  document.getElementById("btnScanner").addEventListener("click", iniciarScanner);
-  document.getElementById("btnPararScanner")?.addEventListener("click", pararScanner);
-  document.getElementById("seletorMercado")?.addEventListener("change", carregarProdutos);
-
-  // Auto-busca ao digitar código de barras
-  const inputCodigo = document.getElementById("codigoBarras");
-  let timerBusca = null;
-  inputCodigo.addEventListener("input", () => {
-    clearTimeout(timerBusca);
-    timerBusca = setTimeout(() => buscarPorCodigo(inputCodigo.value.trim()), 500);
-  });
-
-  carregarProdutos();
 }
 
 // ==========================
@@ -406,6 +413,60 @@ async function rejeitarCadastro(userId, nome) {
 
   alert("Cadastro rejeitado.");
   carregarPendentes();
+}
+
+// ==========================
+// 👥 CLIENTES ATIVOS
+// ==========================
+async function carregarClientesAtivos() {
+  const { data, error } = await supabaseClient
+    .from("perfis")
+    .select("*")
+    .eq("aprovado", true)
+    .order("data_cadastro", { ascending: false });
+
+  const lista = document.getElementById("listaClientesAtivos");
+  if (!lista) return;
+
+  if (error || !data || data.length === 0) {
+    lista.innerHTML = '<div style="color:#6b7280; font-size:14px; padding:8px 0">Nenhum cliente ativo.</div>';
+    return;
+  }
+
+  lista.innerHTML = data.map(p => {
+    const dataFmt = new Date(p.data_cadastro).toLocaleDateString("pt-BR");
+    return `
+      <div style="background:#111827; border:1.5px solid rgba(16,185,129,0.25); border-left:3px solid #10b981; border-radius:12px; padding:16px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px">
+        <div>
+          <strong style="color:#e5e7eb; font-size:15px">${p.nome_estabelecimento || "-"}</strong><br>
+          <span style="color:#6b7280; font-size:13px">📧 ${p.email}</span><br>
+          <span style="color:#6b7280; font-size:13px">🏪 ${p.mercado || "-"}</span><br>
+          <span style="color:#6b7280; font-size:12px">📅 Desde: ${dataFmt}</span>
+        </div>
+        <div>
+          <button class="btn btn-red" style="padding:8px 16px; font-size:13px" onclick="desativarCliente('${p.user_id}', '${p.nome_estabelecimento}')">🚫 Desativar</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+// ==========================
+// 🚫 DESATIVAR CLIENTE
+// ==========================
+async function desativarCliente(userId, nome) {
+  if (!confirm(`Desativar o acesso de "${nome}"? O cliente não conseguirá mais logar.`)) return;
+
+  const { error } = await supabaseClient
+    .from("perfis")
+    .update({ aprovado: false })
+    .eq("user_id", userId);
+
+  if (error) return alert("Erro ao desativar: " + error.message);
+
+  alert("Cliente desativado.");
+  carregarPendentes();
+  carregarClientesAtivos();
 }
 
 // ==========================
