@@ -338,7 +338,7 @@
     <div class="text-center mb-4">
       <div class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-3">🏪</div>
       <h1 style="font-size:1.5rem; font-weight:800; color:#f9fafb">Sistema <span style="color:#3b82f6">Estoque</span>/Validade</h1>
-      <p style="color:#6b7280; font-size:13px; margin-top:4px">Faça login para consultar seus produtos</p>
+      <p style="color:#6b7280; font-size:13px; margin-top:4px">Gestão de produtos e controle de validade</p>
     </div>
 
     <div id="loginErro" class="login-error"></div>
@@ -503,11 +503,19 @@
 
     <input id="editId" type="hidden">
 
-    <div class="grid md:grid-cols-4 gap-3">
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-3">
 
       <input id="editCodigoBarras" class="clean-input" placeholder="Código">
 
+      <input id="editNome" class="clean-input" placeholder="Nome do Produto">
+
+      <input id="editFornecedor" class="clean-input" placeholder="Fornecedor">
+
       <input id="editLote" class="clean-input" placeholder="Lote">
+
+      <input id="editQuantidade" type="number" class="clean-input" placeholder="Quantidade">
+
+      <input id="editMercado" class="clean-input" placeholder="Mercado">
 
       <input id="editValidade" type="date" class="clean-input">
 
