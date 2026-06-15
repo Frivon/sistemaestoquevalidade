@@ -270,26 +270,21 @@ async function fazerLogout() {
 }
 
 // ==========================
-// 🏪 CARREGAR MERCADOS DO USUÁRIO
+// 🏪 CARREGAR MERCADO DO USUÁRIO
 // ==========================
-async function carregarMercadosDoUsuario() {
+let mercadoDoUsuario = "";
+
+async function carregarMercadoDoUsuario() {
   const { data, error } = await supabaseClient
     .from("usuario_mercados")
     .select("mercado")
-    .eq("user_id", usuarioAtual.id);
-
-  const seletor = document.getElementById("seletorMercado");
-  seletor.innerHTML = "";
+    .eq("user_id", usuarioAtual.id)
+    .limit(1);
 
   if (!error && data && data.length > 0) {
-    if (data.length > 1) {
-      seletor.innerHTML += '<option value="">Todos os mercados</option>';
-    }
-    data.forEach(m => {
-      seletor.innerHTML += `<option value="${m.mercado}">${m.mercado}</option>`;
-    });
+    mercadoDoUsuario = data[0].mercado;
   } else {
-    seletor.innerHTML = '<option value="">Nenhum mercado associado</option>';
+    mercadoDoUsuario = "";
   }
 }
 
@@ -318,13 +313,12 @@ async function mostrarSistema() {
     if (areaAdmin) areaAdmin.style.display = "none";
     if (areaProdutos) areaProdutos.style.display = "block";
 
-    await carregarMercadosDoUsuario();
+    await carregarMercadoDoUsuario();
 
     document.getElementById("btnSalvar").addEventListener("click", salvarProduto);
     document.getElementById("btnAtualizar").addEventListener("click", atualizarProduto);
     document.getElementById("btnScanner").addEventListener("click", iniciarScanner);
     document.getElementById("btnPararScanner")?.addEventListener("click", pararScanner);
-    document.getElementById("seletorMercado")?.addEventListener("change", carregarProdutos);
 
     const inputCodigo = document.getElementById("codigoBarras");
     let timerBusca = null;
@@ -600,7 +594,6 @@ async function salvarProduto() {
   const lote = document.getElementById("lote")?.value?.trim();
   const quantidade = document.getElementById("quantidade")?.value;
   const validade = document.getElementById("validade")?.value;
-  const mercado = document.getElementById("seletorMercado")?.value;
 
   if (!codigo_barras || !nome || !lote || !validade) {
     alert("Preencha todos os campos!");
@@ -614,7 +607,7 @@ async function salvarProduto() {
       codigo_barras,
       nome,
       fornecedor,
-      mercado,
+      mercado: mercadoDoUsuario,
       lote,
       quantidade,
       data_entrada: hojeLocal(),
@@ -666,7 +659,7 @@ async function atualizarProduto() {
 // ==========================
 async function carregarProdutos() {
 
-  const mercadoSelecionado = document.getElementById("seletorMercado")?.value || "";
+  const mercadoSelecionado = mercadoDoUsuario || "";
 
   let query = supabaseClient
     .from("produtos")
@@ -868,7 +861,7 @@ function limparFormulario() {
 // 📊 EXPORTAR CSV
 // ==========================
 async function exportarCSV() {
-  const mercadoSelecionado = document.getElementById("seletorMercado")?.value || "";
+  const mercadoSelecionado = mercadoDoUsuario || "";
 
   let query = supabaseClient
     .from("produtos")
