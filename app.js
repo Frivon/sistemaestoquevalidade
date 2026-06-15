@@ -617,6 +617,28 @@ async function salvarProduto() {
 
   if (error) return alert(error.message);
 
+  try {
+    const { data: existente } = await supabaseClient
+      .from("catalogo_produtos")
+      .select("id")
+      .eq("codigo_barras", codigo_barras)
+      .eq("user_id", usuarioAtual.id)
+      .limit(1);
+
+    if (existente && existente.length > 0) {
+      await supabaseClient
+        .from("catalogo_produtos")
+        .update({ nome, fornecedor })
+        .eq("id", existente[0].id);
+    } else {
+      await supabaseClient
+        .from("catalogo_produtos")
+        .insert([{ codigo_barras, nome, fornecedor, user_id: usuarioAtual.id }]);
+    }
+  } catch (err) {
+    console.error("Erro ao atualizar catálogo:", err);
+  }
+
   limparFormulario();
   carregarProdutos();
 }
@@ -630,14 +652,22 @@ async function atualizarProduto() {
   if (!id) return alert("Selecione um produto!");
 
   const codigo_barras = document.getElementById("editCodigoBarras")?.value?.trim();
+  const nome = document.getElementById("editNome")?.value?.trim();
+  const fornecedor = document.getElementById("editFornecedor")?.value?.trim();
   const lote = document.getElementById("editLote")?.value?.trim();
+  const quantidade = document.getElementById("editQuantidade")?.value;
+  const mercado = document.getElementById("editMercado")?.value?.trim();
   const validade = document.getElementById("editValidade")?.value;
 
   const { data, error } = await supabaseClient
     .from("produtos")
     .update({
       codigo_barras,
+      nome,
+      fornecedor,
       lote,
+      quantidade,
+      mercado,
       data_validade: validade
     })
     .eq("id", id)
@@ -753,7 +783,11 @@ async function carregarProdutos() {
           style="margin-top:10px"
           data-id="${prod.id}"
           data-codigo="${prod.codigo_barras || ""}"
+          data-nome="${prod.nome || ""}"
+          data-fornecedor="${prod.fornecedor || ""}"
           data-lote="${prod.lote || ""}"
+          data-quantidade="${prod.quantidade || 0}"
+          data-mercado="${prod.mercado || ""}"
           data-validade="${prod.data_validade || ""}"
           onclick="abrirEdicao(this)">
           ✏️ Editar
@@ -845,7 +879,11 @@ async function carregarProdutos() {
 function abrirEdicao(btn) {
   document.getElementById("editId").value = btn.dataset.id;
   document.getElementById("editCodigoBarras").value = btn.dataset.codigo;
+  document.getElementById("editNome").value = btn.dataset.nome;
+  document.getElementById("editFornecedor").value = btn.dataset.fornecedor;
   document.getElementById("editLote").value = btn.dataset.lote;
+  document.getElementById("editQuantidade").value = btn.dataset.quantidade;
+  document.getElementById("editMercado").value = btn.dataset.mercado;
   document.getElementById("editValidade").value = btn.dataset.validade;
 }
 
