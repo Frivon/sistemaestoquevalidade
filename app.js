@@ -440,35 +440,32 @@ async function notificarWhatsApp(vencidos, criticos) {
   let apikey = localStorage.getItem("callmebot_apikey");
   
   if (!numero) {
-    numero = prompt("Digite seu WhatsApp (ex: 5511999999999):");
+    numero = prompt("Digite seu WhatsApp completo (ex: 5511999999999):");
     if (!numero) return;
     localStorage.setItem("callmebot_numero", numero);
   }
   
   if (!apikey) {
-    apikey = prompt("Digite sua APIKEY do CallMeBot:");
+    apikey = prompt("Digite sua APIKEY:");
     if (!apikey) return;
     localStorage.setItem("callmebot_apikey", apikey);
   }
 
-  let msg = "⚠️ Alerta Vence Nunca%0A%0A";
+  let msg = "⚠️ Vence Nunca\n\n";
   if (vencidos.length > 0) {
-    msg += "❌ VENCIDOS:%0A";
-    vencidos.forEach(p => { msg += `- ${p.nome} (vencido ha ${p.dias} dias)%0A`; });
-    msg += "%0A";
+    msg += "❌ Vencidos:\n";
+    vencidos.forEach(p => { msg += `• ${p.nome} (${p.dias} dias atrás)\n`; });
+    msg += "\n";
   }
   if (criticos.length > 0) {
-    msg += "⚠️ CRITICOS:%0A";
-    criticos.forEach(p => { msg += `- ${p.nome} (vence em ${p.dias} dias)%0A`; });
-    msg += "%0A";
+    msg += "⚠️ Criticos:\n";
+    criticos.forEach(p => { msg += `• ${p.nome} (${p.dias} dias restantes)\n`; });
+    msg += "\n";
   }
-  msg += "Verifique no sistema!";
 
-  const url = `https://api.callmebot.com/whatsapp.php?phone=${numero}&text=${msg}&apikey=${apikey}`;
+  const url = `https://api.callmebot.com/whatsapp.php?source=web&phone=${encodeURIComponent(numero)}&text=${encodeURIComponent(msg)}&apikey=${encodeURIComponent(apikey)}`;
   
-  // Tecnica garantida: img invisivel para GET
-  const img = new Image();
-  img.src = url;
-  img.onload = () => alert("✅ Enviado! Verifique seu WhatsApp.");
-  img.onerror = () => alert("⚠️ Tente novamente em alguns segundos.");
+  // Abre a URL diretamente - método garantido
+  window.open(url, 'callmebot', 'width=1,height=1');
+  alert("✅ Enviando... Feche a aba popup quando quiser. Verifique seu WhatsApp em instantes!");
 }
