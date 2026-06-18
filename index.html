@@ -11,379 +11,103 @@
 
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-
   * { font-family: 'Inter', sans-serif; }
-
-  body {
-    background: #111827;
-    min-height: 100vh;
-  }
-
-  /* Clean card */
-  .clean-card {
-    background: #1f2937;
-    border-radius: 14px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3),
-                0 4px 12px rgba(0, 0, 0, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.04);
-    transition: box-shadow 0.3s ease;
-  }
-
-  .clean-card:hover {
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35),
-                0 8px 24px rgba(0, 0, 0, 0.2);
-  }
-
-  /* Clean input */
-  .clean-input {
-    background: #111827;
-    border: 1.5px solid #374151;
-    border-radius: 10px;
-    padding: 12px 16px;
-    color: #e5e7eb;
-    font-size: 14px;
-    outline: none;
-    transition: all 0.2s ease;
-    width: 100%;
-  }
-
+  body { background: #111827; min-height: 100vh; }
+  .clean-card { background: #1f2937; border-radius: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.04); transition: box-shadow 0.3s ease; }
+  .clean-card:hover { box-shadow: 0 2px 6px rgba(0,0,0,0.35), 0 8px 24px rgba(0,0,0,0.2); }
+  .clean-input { background: #111827; border: 1.5px solid #374151; border-radius: 10px; padding: 12px 16px; color: #e5e7eb; font-size: 14px; outline: none; transition: all 0.2s ease; width: 100%; }
   .clean-input::placeholder { color: #6b7280; }
-
-  .clean-input:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-  }
-
-  /* Buttons */
-  .btn {
-    padding: 11px 22px;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: none;
-    letter-spacing: 0.2px;
-  }
-
+  .clean-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+  .btn { padding: 11px 22px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; border: none; letter-spacing: 0.2px; }
   .btn:active { transform: scale(0.97); }
-
-  .btn-blue {
-    background: #3b82f6;
-    color: white;
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
-  }
-
-  .btn-blue:hover {
-    background: #2563eb;
-    box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
-  }
-
-  .btn-green {
-    background: #10b981;
-    color: white;
-    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
-  }
-
-  .btn-green:hover {
-    background: #059669;
-    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
-  }
-
-  .btn-red {
-    background: #ef4444;
-    color: white;
-    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.25);
-  }
-
-  .btn-red:hover {
-    background: #dc2626;
-    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
-  }
-
-  /* Stat cards */
-  .stat-card {
-    background: #111827;
-    border-radius: 12px;
-    padding: 20px;
-    text-align: center;
-    border: 1.5px solid #374151;
-    transition: all 0.2s ease;
-  }
-
-  .stat-card:hover {
-    transform: translateY(-1px);
-  }
-
-  .stat-number {
-    font-size: 2.25rem;
-    font-weight: 800;
-    letter-spacing: -1px;
-    line-height: 1;
-  }
-
-  .stat-label {
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    margin-top: 8px;
-    color: #9ca3af;
-  }
-
-  .stat-total { border-color: #374151; }
+  .btn-blue { background: #3b82f6; color: white; box-shadow: 0 2px 8px rgba(59,130,246,0.25); }
+  .btn-blue:hover { background: #2563eb; box-shadow: 0 4px 14px rgba(59,130,246,0.35); }
+  .btn-green { background: #10b981; color: white; box-shadow: 0 2px 8px rgba(16,185,129,0.25); }
+  .btn-green:hover { background: #059669; box-shadow: 0 4px 14px rgba(16,185,129,0.35); }
+  .btn-red { background: #ef4444; color: white; box-shadow: 0 2px 8px rgba(239,68,68,0.25); }
+  .btn-red:hover { background: #dc2626; box-shadow: 0 4px 14px rgba(239,68,68,0.35); }
+  .stat-card { background: #111827; border-radius: 12px; padding: 20px; text-align: center; border: 1.5px solid #374151; transition: all 0.2s ease; }
+  .stat-card:hover { transform: translateY(-1px); }
+  .stat-number { font-size: 2.25rem; font-weight: 800; letter-spacing: -1px; line-height: 1; }
+  .stat-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 8px; color: #9ca3af; }
   .stat-total .stat-number { color: #e5e7eb; }
-
-  .stat-vencidos { border-color: rgba(239, 68, 68, 0.3); }
+  .stat-vencidos { border-color: rgba(239,68,68,0.3); }
   .stat-vencidos .stat-number { color: #ef4444; }
-
-  .stat-criticos { border-color: rgba(245, 158, 11, 0.3); }
+  .stat-criticos { border-color: rgba(245,158,11,0.3); }
   .stat-criticos .stat-number { color: #f59e0b; }
-
-  .stat-ok { border-color: rgba(16, 185, 129, 0.3); }
+  .stat-ok { border-color: rgba(16,185,129,0.3); }
   .stat-ok .stat-number { color: #10b981; }
-
-  /* Product card */
-  .card {
-    padding: 18px;
-    border-radius: 12px;
-    border: 1.5px solid #374151;
-    transition: all 0.2s ease;
-    line-height: 1.7;
-    font-size: 14px;
-  }
-
-  .card:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-  }
-
-  .card strong {
-    font-size: 16px;
-    font-weight: 700;
-    color: #f3f4f6;
-    display: block;
-    margin-bottom: 6px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-  }
-
-  .card .label {
-    color: #6b7280;
-    font-weight: 500;
-  }
-
-  /* Section header */
-  .section-title {
-    font-size: 15px;
-    font-weight: 700;
-    color: #e5e7eb;
-    letter-spacing: 0.3px;
-  }
-
-  .section-divider {
-    height: 1px;
-    background: linear-gradient(to right, rgba(255,255,255,0.08), transparent);
-    margin-bottom: 16px;
-  }
-
-  /* Main header */
-  .main-header {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: #f9fafb;
-    letter-spacing: -0.3px;
-  }
-
-  .main-header span {
-    color: #3b82f6;
-  }
-
-  /* Footer */
-  .clean-footer {
-    color: #6b7280;
-    font-size: 13px;
-  }
-
-  .clean-footer span {
-    color: #3b82f6;
-    font-weight: 700;
-  }
-
-  /* Scrollbar */
+  .card { padding: 18px; border-radius: 12px; border: 1.5px solid #374151; transition: all 0.2s ease; line-height: 1.7; font-size: 14px; }
+  .card:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+  .card strong { font-size: 16px; font-weight: 700; color: #f3f4f6; display: block; margin-bottom: 6px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .card .label { color: #6b7280; font-weight: 500; }
+  .section-title { font-size: 15px; font-weight: 700; color: #e5e7eb; letter-spacing: 0.3px; }
+  .section-divider { height: 1px; background: linear-gradient(to right, rgba(255,255,255,0.08), transparent); margin-bottom: 16px; }
+  .main-header { font-size: 1.5rem; font-weight: 800; color: #f9fafb; letter-spacing: -0.3px; }
+  .main-header span { color: #3b82f6; }
+  .clean-footer { color: #6b7280; font-size: 13px; }
+  .clean-footer span { color: #3b82f6; font-weight: 700; }
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
   ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
-
-  /* Login */
-  .login-container {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .login-box {
-    background: #1f2937;
-    border-radius: 16px;
-    padding: 40px;
-    width: 100%;
-    max-width: 400px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.04);
-  }
-
-  .login-box h1 {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: #f9fafb;
-    text-align: center;
-    margin-bottom: 8px;
-  }
-
-  .login-box p {
-    color: #6b7280;
-    text-align: center;
-    font-size: 14px;
-    margin-bottom: 24px;
-  }
-
-  .login-box .clean-input {
-    margin-bottom: 12px;
-  }
-
-  .login-box .btn {
-    width: 100%;
-    margin-top: 4px;
-  }
-
-  .login-toggle {
-    text-align: center;
-    margin-top: 16px;
-    font-size: 13px;
-    color: #6b7280;
-  }
-
-  .login-toggle a {
-    color: #3b82f6;
-    cursor: pointer;
-    font-weight: 600;
-  }
-
-  .login-toggle a:hover {
-    text-decoration: underline;
-  }
-
-  .login-error {
-    background: rgba(239, 68, 68, 0.1);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    color: #f87171;
-    padding: 10px 14px;
-    border-radius: 10px;
-    font-size: 13px;
-    margin-bottom: 12px;
-    display: none;
-  }
-
-  /* User bar */
-  .user-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: #1f2937;
-    border-radius: 12px;
-    padding: 12px 20px;
-    margin-bottom: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.04);
-  }
-
-  .user-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 14px;
-    color: #9ca3af;
-  }
-
-  .user-info strong {
-    color: #e5e7eb;
-  }
-
-  .btn-logout {
-    background: transparent;
-    border: 1.5px solid #374151;
-    color: #9ca3af;
-    padding: 8px 16px;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .btn-logout:hover {
-    border-color: #ef4444;
-    color: #ef4444;
-  }
+  .login-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+  .login-box { background: #1f2937; border-radius: 16px; padding: 40px; width: 100%; max-width: 400px; box-shadow: 0 4px 24px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.04); }
+  .login-box h1 { font-size: 1.5rem; font-weight: 800; color: #f9fafb; text-align: center; margin-bottom: 8px; }
+  .login-box p { color: #6b7280; text-align: center; font-size: 14px; margin-bottom: 24px; }
+  .login-box .clean-input { margin-bottom: 12px; }
+  .login-box .btn { width: 100%; margin-top: 4px; }
+  .login-toggle { text-align: center; margin-top: 16px; font-size: 13px; color: #6b7280; }
+  .login-toggle a { color: #3b82f6; cursor: pointer; font-weight: 600; }
+  .login-toggle a:hover { text-decoration: underline; }
+  .login-error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #f87171; padding: 10px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 12px; display: none; }
+  .user-bar { display: flex; align-items: center; justify-content: space-between; background: #1f2937; border-radius: 12px; padding: 12px 20px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.04); }
+  .user-info { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #9ca3af; }
+  .user-info strong { color: #e5e7eb; }
+  .btn-logout { background: transparent; border: 1.5px solid #374151; color: #9ca3af; padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .btn-logout:hover { border-color: #ef4444; color: #ef4444; }
 </style>
-
 </head>
-
 <body class="text-gray-300">
 
-<!-- ===== TELA DE LOGIN ===== -->
 <div id="telaLogin" class="login-container">
   <div class="login-box">
     <div class="text-center mb-4">
-      <div class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-3">🏪</div>
-      <h1 style="font-size:1.5rem; font-weight:800; color:#f9fafb">Sistema <span style="color:#3b82f6">Estoque</span>/Validade</h1>
-      <p style="color:#6b7280; font-size:13px; margin-top:4px">Gestão de produtos e controle de validade</p>
+      <div style="display:flex;justify-content:center;margin-bottom:12px">
+        <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="vnGradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2563EB"/><stop offset="100%" stop-color="#3B82F6"/></linearGradient></defs>
+          <rect x="4" y="4" width="56" height="56" rx="18" fill="url(#vnGradient)"/>
+          <path d="M18 33 L28 43 L46 21" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+      </div>
+      <h1 style="font-size:1.5rem; font-weight:800; color:#f9fafb">Vence<span style="color:#3b82f6">Nunca</span></h1>
+      <p style="color:#6b7280; font-size:13px; margin-top:4px">Faça login para consultar seus produtos</p>
     </div>
-
     <div id="loginErro" class="login-error"></div>
-
     <input id="loginEmail" type="email" placeholder="Email" class="clean-input">
     <input id="loginSenha" type="password" placeholder="Senha" class="clean-input">
-
     <button id="btnLogin" class="btn btn-blue">🔑 Entrar</button>
-
     <div id="areaCadastro" style="display:none">
       <input id="loginNome" type="text" placeholder="Nome do estabelecimento" class="clean-input" style="margin-top:12px">
       <input id="loginMercado" type="text" placeholder="Nome do mercado" class="clean-input">
       <input id="loginWhatsApp" type="text" placeholder="WhatsApp (ex: 5511999999999)" class="clean-input">
       <button id="btnCadastrar" class="btn btn-green">📝 Criar Conta</button>
     </div>
-
     <div class="login-toggle">
       <span id="toggleTexto">Não tem conta? </span>
       <a id="toggleLink" onclick="toggleLoginCadastro()">Criar conta</a>
     </div>
-
-    <div style="text-align:center; margin-top:10px">
-      <a style="color:#6b7280; font-size:12px; cursor:pointer; text-decoration:underline" onclick="recuperarSenha()">Esqueci minha senha</a>
-    </div>
-
-    <div style="text-align:center; margin-top:14px">
-      <a href="https://frivon.github.io/sistemaestoquevalidade/manual.html" target="_blank" style="color:#3b82f6; font-size:13px; font-weight:600; text-decoration:none">📘 Manual do Sistema</a>
-    </div>
+    <div style="text-align:center; margin-top:10px"><a style="color:#6b7280; font-size:12px; cursor:pointer; text-decoration:underline" onclick="recuperarSenha()">Esqueci minha senha</a></div>
+    <div style="text-align:center; margin-top:14px"><a href="https://frivon.github.io/sistemaestoquevalidade/manual.html" target="_blank" style="color:#3b82f6; font-size:13px; font-weight:600; text-decoration:none">📘 Manual do Sistema</a></div>
   </div>
 </div>
 
-<!-- ===== SISTEMA PRINCIPAL ===== -->
 <div id="sistemaPrincipal" style="display:none">
-
 <div class="max-w-6xl mx-auto p-4 md:p-8">
-
-  <!-- Barra do usuário -->
   <div class="user-bar">
-    <div class="user-info">
-      <span>👤</span>
-      <span>Logado como <strong id="usuarioEmail">-</strong></span>
-    </div>
+    <div class="user-info"><span>👤</span><span>Logado como <strong id="usuarioEmail">-</strong></span></div>
     <button class="btn-logout" onclick="fazerLogout()">🚪 Sair</button>
   </div>
-
   <div class="flex items-center gap-3 mb-8">
     <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-lg">🏪</div>
     <div>
@@ -392,170 +116,83 @@
     </div>
   </div>
 
-  <!-- ===== ÁREA ADMIN (só admin vê) ===== -->
   <div id="areaAdmin" style="display:none">
-
-    <!-- 👑 CADASTROS PENDENTES -->
     <div class="clean-card p-6 mb-5">
-      <div class="flex items-center justify-between mb-2">
-        <h2 class="section-title">👑 Cadastros Pendentes</h2>
-        <button class="btn btn-blue" style="padding:8px 16px; font-size:13px" onclick="carregarPendentes()">🔄 Atualizar</button>
-      </div>
+      <div class="flex items-center justify-between mb-2"><h2 class="section-title">👑 Cadastros Pendentes</h2><button class="btn btn-blue" style="padding:8px 16px; font-size:13px" onclick="carregarPendentes()">🔄 Atualizar</button></div>
       <div class="section-divider"></div>
       <div id="listaPendentes"></div>
     </div>
-
-    <!-- 👥 CLIENTES ATIVOS -->
     <div class="clean-card p-6">
-      <div class="flex items-center justify-between mb-2">
-        <h2 class="section-title">👥 Clientes Ativos</h2>
-        <button class="btn btn-blue" style="padding:8px 16px; font-size:13px" onclick="carregarClientesAtivos()">🔄 Atualizar</button>
-      </div>
+      <div class="flex items-center justify-between mb-2"><h2 class="section-title">👥 Clientes Ativos</h2><button class="btn btn-blue" style="padding:8px 16px; font-size:13px" onclick="carregarClientesAtivos()">🔄 Atualizar</button></div>
       <div class="section-divider"></div>
       <div id="listaClientesAtivos"></div>
     </div>
-
   </div>
 
-  <!-- ===== ÁREA PRODUTOS (só clientes veem) ===== -->
   <div id="areaProdutos" style="display:none">
-
-  <!-- 📊 RESUMO -->
-  <div class="clean-card p-6 mb-5">
-    <h2 class="section-title mb-2">📊 Resumo do Estoque</h2>
-    <div class="section-divider"></div>
-
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-
-      <div class="stat-card stat-total">
-        <div id="totalProdutos" class="stat-number">0</div>
-        <div class="stat-label">Total</div>
+    <div class="clean-card p-6 mb-5">
+      <h2 class="section-title mb-2">📊 Resumo do Estoque</h2>
+      <div class="section-divider"></div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="stat-card stat-total"><div id="totalProdutos" class="stat-number">0</div><div class="stat-label">Total</div></div>
+        <div class="stat-card stat-vencidos"><div id="vencidos" class="stat-number">0</div><div class="stat-label">Vencidos</div></div>
+        <div class="stat-card stat-criticos"><div id="alerta" class="stat-number">0</div><div class="stat-label">Críticos</div></div>
+        <div class="stat-card stat-ok"><div id="ok" class="stat-number">0</div><div class="stat-label">OK</div></div>
       </div>
+    </div>
 
-      <div class="stat-card stat-vencidos">
-        <div id="vencidos" class="stat-number">0</div>
-        <div class="stat-label">Vencidos</div>
+    <div class="clean-card p-6 mb-5">
+      <h2 class="section-title mb-2">➕ Adicionar Produto</h2>
+      <div class="section-divider"></div>
+      <div class="grid md:grid-cols-2 lg:grid-cols-5 gap-3 items-start">
+        <input id="codigoBarras" type="text" placeholder="Código de Barras" class="clean-input">
+        <button id="btnScanner" class="btn btn-blue">📷 Escanear</button>
+        <button id="btnPararScanner" class="btn btn-red">⛔ Parar</button>
+        <div id="reader" class="col-span-2 w-full max-w-xs"></div>
+        <input id="nome" type="text" placeholder="Nome do Produto" class="clean-input">
+        <input id="fornecedor" type="text" placeholder="Fornecedor" class="clean-input">
+        <input id="lote" type="text" placeholder="Lote" class="clean-input">
+        <input id="quantidade" type="number" placeholder="Quantidade" class="clean-input">
+        <input id="validade" type="date" class="clean-input">
+        <button id="btnSalvar" class="btn btn-green">💾 Salvar Produto</button>
       </div>
+    </div>
 
-      <div class="stat-card stat-criticos">
-        <div id="alerta" class="stat-number">0</div>
-        <div class="stat-label">Críticos</div>
+    <div class="clean-card p-6 mb-5">
+      <h2 class="section-title mb-2">✏️ Editar Produto</h2>
+      <div class="section-divider"></div>
+      <input id="editId" type="hidden">
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-3">
+        <input id="editCodigoBarras" class="clean-input" placeholder="Código">
+        <input id="editNome" class="clean-input" placeholder="Nome do Produto">
+        <input id="editFornecedor" class="clean-input" placeholder="Fornecedor">
+        <input id="editLote" class="clean-input" placeholder="Lote">
+        <input id="editQuantidade" type="number" class="clean-input" placeholder="Quantidade">
+        <input id="editMercado" class="clean-input" placeholder="Mercado">
+        <input id="editValidade" type="date" class="clean-input">
+        <button id="btnAtualizar" class="btn btn-green">✅ Atualizar</button>
       </div>
+    </div>
 
-      <div class="stat-card stat-ok">
-        <div id="ok" class="stat-number">0</div>
-        <div class="stat-label">OK</div>
+    <div class="clean-card p-6 mb-5">
+      <h2 class="section-title mb-2">⚠️ Alertas</h2>
+      <div class="section-divider"></div>
+      <div id="alertas"></div>
+    </div>
+
+    <div class="clean-card p-6">
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="section-title">📋 Estoque</h2>
+        <button class="btn btn-blue" style="padding:8px 16px; font-size:13px" onclick="exportarCSV()">📊 Exportar CSV</button>
       </div>
-
+      <div class="section-divider"></div>
+      <input id="buscaProduto" type="text" placeholder="🔍 Buscar por nome, código, lote ou fornecedor..." class="clean-input" style="margin-bottom:16px" oninput="filtrarProdutos()">
+      <div id="lista" class="grid md:grid-cols-3 gap-4"></div>
     </div>
   </div>
-
-  <!-- ➕ CADASTRO -->
-  <div class="clean-card p-6 mb-5">
-    <h2 class="section-title mb-2">➕ Adicionar Produto</h2>
-    <div class="section-divider"></div>
-
-    <div class="grid md:grid-cols-2 lg:grid-cols-5 gap-3 items-start">
-
-      <input id="codigoBarras" type="text"
-        placeholder="Código de Barras"
-        class="clean-input">
-
-      <button id="btnScanner" class="btn btn-blue">
-        📷 Escanear
-      </button>
-
-      <button id="btnPararScanner" class="btn btn-red">
-        ⛔ Parar
-      </button>
-
-      <div id="reader" class="col-span-2 w-full max-w-xs"></div>
-
-      <input id="nome" type="text"
-        placeholder="Nome do Produto"
-        class="clean-input">
-
-      <input id="fornecedor" type="text"
-        placeholder="Fornecedor"
-        class="clean-input">
-
-      <input id="lote" type="text"
-        placeholder="Lote"
-        class="clean-input">
-
-      <input id="quantidade" type="number"
-        placeholder="Quantidade"
-        class="clean-input">
-
-      <input id="validade" type="date"
-        class="clean-input">
-
-      <button id="btnSalvar" class="btn btn-green">
-        💾 Salvar Produto
-      </button>
-
-    </div>
-  </div>
-
-  <!-- ✏️ EDIÇÃO -->
-  <div class="clean-card p-6 mb-5">
-    <h2 class="section-title mb-2">✏️ Editar Produto</h2>
-    <div class="section-divider"></div>
-
-    <input id="editId" type="hidden">
-
-    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-3">
-
-      <input id="editCodigoBarras" class="clean-input" placeholder="Código">
-
-      <input id="editNome" class="clean-input" placeholder="Nome do Produto">
-
-      <input id="editFornecedor" class="clean-input" placeholder="Fornecedor">
-
-      <input id="editLote" class="clean-input" placeholder="Lote">
-
-      <input id="editQuantidade" type="number" class="clean-input" placeholder="Quantidade">
-
-      <input id="editMercado" class="clean-input" placeholder="Mercado">
-
-      <input id="editValidade" type="date" class="clean-input">
-
-      <button id="btnAtualizar" class="btn btn-green">
-        ✅ Atualizar
-      </button>
-
-    </div>
-  </div>
-
-  <!-- ⚠️ ALERTAS -->
-  <div class="clean-card p-6 mb-5">
-    <h2 class="section-title mb-2">⚠️ Alertas</h2>
-    <div class="section-divider"></div>
-    <div id="alertas"></div>
-  </div>
-
-  <!-- 📋 LISTA -->
-  <div class="clean-card p-6">
-    <div class="flex items-center justify-between mb-2">
-      <h2 class="section-title">📋 Estoque</h2>
-      <button class="btn btn-blue" style="padding:8px 16px; font-size:13px" onclick="exportarCSV()">📊 Exportar CSV</button>
-    </div>
-    <div class="section-divider"></div>
-    <input id="buscaProduto" type="text" placeholder="🔍 Buscar por nome, código, lote ou fornecedor..." class="clean-input" style="margin-bottom:16px" oninput="filtrarProdutos()">
-    <div id="lista" class="grid md:grid-cols-3 gap-4"></div>
-  </div>
-
-  </div><!-- fim areaProdutos -->
-
 </div>
-
-<footer class="text-center mt-8 mb-4 clean-footer">
-  Sistema desenvolvido por <span>WesleyDevOps</span>
-</footer>
-
-</div><!-- fim sistemaPrincipal -->
-
+<footer class="text-center mt-8 mb-4 clean-footer">Sistema desenvolvido por <span>WesleyDevOps</span></footer>
+</div>
 <script src="app.js"></script>
-
 </body>
 </html>
