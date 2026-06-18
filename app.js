@@ -69,10 +69,20 @@ async function fazerCadastro() {
   if (senha.length < 6) { erroDiv.textContent = "A senha deve ter pelo menos 6 caracteres!"; erroDiv.style.display = "block"; return; }
   erroDiv.style.display = "none";
   try {
-    const { data, error } = await supabaseClient.auth.signUp({ email, password: senha, options: { data: { nome_estabelecimento: nome || "" } } });
+    const { data, error } = await supabaseClient.auth.signUp({
+      email,
+      password: senha,
+      options: {
+        data: {
+          nome_estabelecimento: nome || "",
+          mercado: mercado || "",
+          whatsapp: whatsapp || ""
+        }
+      }
+    });
     if (error) { erroDiv.textContent = error.message; erroDiv.style.display = "block"; return; }
     if (data.user) {
-      await supabaseClient.from("perfis").insert([{ user_id: data.user.id, email, nome_estabelecimento: nome, mercado, whatsapp, aprovado: false }]);
+      // Trigger do Supabase insere automaticamente em perfis
       await supabaseClient.auth.signOut();
       erroDiv.style.display = "block"; erroDiv.style.borderColor = "rgba(16,185,129,0.3)"; erroDiv.style.background = "rgba(16,185,129,0.1)"; erroDiv.style.color = "#34d399";
       erroDiv.textContent = "✅ Cadastro enviado! Aguarde a aprovação do administrador para acessar o sistema.";
