@@ -176,6 +176,7 @@ async function fazerCadastro() {
         email: email,
         nome_estabelecimento: nome,
         mercado: mercado,
+        whatsapp: document.getElementById("loginWhatsApp")?.value?.trim() || null,
         aprovado: false
       }]);
 
@@ -858,6 +859,18 @@ async function carregarProdutos() {
   `;
 
   // ==========================
+  // 📱 BOTAO NOTIFICAR WHATSAPP
+  // ==========================
+  if (vencidos > 0 || criticos > 0) {
+    const btnWhats = document.createElement("button");
+    btnWhats.className = "btn btn-green";
+    btnWhats.style.cssText = "width:100%; margin-top:12px; padding:12px; font-size:14px";
+    btnWhats.innerHTML = "📱 Notificar WhatsApp";
+    btnWhats.onclick = () => notificarWhatsApp(listaVencidos, listaCriticos);
+    alertas.appendChild(btnWhats);
+  }
+
+  // ==========================
   // 📊 DASHBOARD
   // ==========================
   document.getElementById("totalProdutos").textContent =
@@ -973,6 +986,44 @@ async function excluirProduto(id, nome) {
 
   alert("Produto excluído com sucesso!");
   carregarProdutos();
+}
+
+// ==========================
+// 📱 NOTIFICAR WHATSAPP (CallMeBot)
+// ==========================
+async function notificarWhatsApp(vencidos, criticos) {
+  const numero = prompt("Digite seu WhatsApp com DDD + código do país\n(ex: 5511999999999):");
+  if (!numero || numero.length < 10) return alert("Número inválido!");
+
+  let msg = "⚠️ *Alerta Vence Nunca*%0A%0A";
+
+  if (vencidos.length > 0) {
+    msg += "❌ *VENCIDOS:*%0A";
+    vencidos.forEach(p => {
+      msg += `• ${p.nome} (venceu há ${p.dias} dias)%0A`;
+    });
+    msg += "%0A";
+  }
+
+  if (criticos.length > 0) {
+    msg += "⚠️ *CRÍTICOS:*%0A";
+    criticos.forEach(p => {
+      msg += `• ${p.nome} (vence em ${p.dias} dias)%0A`;
+    });
+    msg += "%0A";
+  }
+
+  msg += "Verifique o sistema urgentemente! 🔥";
+
+  const url = `https://api.callmebot.com/whatsapp.php?phone=${numero}&text=${msg}&apikey=free`;
+
+  try {
+    const res = await fetch(url, { method: "GET", mode: "no-cors" });
+    alert("📱 Notificação enviada para seu WhatsApp!");
+  } catch (err) {
+    console.error(err);
+    alert("Erro ao enviar. Verifique o número e tente novamente.");
+  }
 }
 
 // ==========================
