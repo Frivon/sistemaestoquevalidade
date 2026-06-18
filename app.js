@@ -436,26 +436,39 @@ function toggleResumo(id) { const el = document.getElementById(id); if (!el) ret
 // 📱 NOTIFICAR WHATSAPP (CallMeBot)
 // ==========================
 async function notificarWhatsApp(vencidos, criticos) {
-  const numero = prompt("Digite seu WhatsApp com DDD + código do país\n(ex: 5511999999999):");
-  if (!numero || numero.length < 10) return alert("Número inválido!");
+  let numero = localStorage.getItem("callmebot_numero");
+  let apikey = localStorage.getItem("callmebot_apikey");
+  
+  if (!numero) {
+    numero = prompt("Digite seu WhatsApp (ex: 5511999999999):");
+    if (!numero) return;
+    localStorage.setItem("callmebot_numero", numero);
+  }
+  
+  if (!apikey) {
+    apikey = prompt("Digite sua APIKEY do CallMeBot:");
+    if (!apikey) return;
+    localStorage.setItem("callmebot_apikey", apikey);
+  }
 
-  const apikey = prompt("Digite sua APIKEY do CallMeBot\n(Receba gratuitamente adicionando +34 684 770 005 no WhatsApp e enviando 'I allow callmebot to send me messages'):");
-  if (!apikey) return alert("APIKEY é obrigatória!");
-
-  let msg = "⚠️ *Alerta Vence Nunca*%0A%0A";
+  let msg = "⚠️ Alerta Vence Nunca%0A%0A";
   if (vencidos.length > 0) {
-    msg += "❌ *VENCIDOS:*%0A";
-    vencidos.forEach(p => { msg += `• ${p.nome} (venceu há ${p.dias} dias)%0A`; });
+    msg += "❌ VENCIDOS:%0A";
+    vencidos.forEach(p => { msg += `- ${p.nome} (vencido ha ${p.dias} dias)%0A`; });
     msg += "%0A";
   }
   if (criticos.length > 0) {
-    msg += "⚠️ *CRÍTICOS:*%0A";
-    criticos.forEach(p => { msg += `• ${p.nome} (vence em ${p.dias} dias)%0A`; });
+    msg += "⚠️ CRITICOS:%0A";
+    criticos.forEach(p => { msg += `- ${p.nome} (vence em ${p.dias} dias)%0A`; });
     msg += "%0A";
   }
-  msg += "Verifique o sistema urgentemente! 🔥";
+  msg += "Verifique no sistema!";
 
   const url = `https://api.callmebot.com/whatsapp.php?phone=${numero}&text=${msg}&apikey=${apikey}`;
-  try { await fetch(url, { method: "GET", mode: "no-cors" }); alert("📱 Notificação enviada para seu WhatsApp!"); }
-  catch (err) { console.error(err); alert("Erro ao enviar. Verifique o número e APIKEY."); }
+  
+  // Tecnica garantida: img invisivel para GET
+  const img = new Image();
+  img.src = url;
+  img.onload = () => alert("✅ Enviado! Verifique seu WhatsApp.");
+  img.onerror = () => alert("⚠️ Tente novamente em alguns segundos.");
 }
