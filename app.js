@@ -438,6 +438,10 @@ function toggleResumo(id) { const el = document.getElementById(id); if (!el) ret
 async function notificarWhatsApp(vencidos, criticos) {
   const numero = prompt("Digite seu WhatsApp com DDD + código do país\n(ex: 5511999999999):");
   if (!numero || numero.length < 10) return alert("Número inválido!");
+
+  const apikey = prompt("Digite sua APIKEY do CallMeBot\n(Receba gratuitamente adicionando +34 684 770 005 no WhatsApp e enviando 'I allow callmebot to send me messages'):");
+  if (!apikey) return alert("APIKEY é obrigatória!");
+
   let msg = "⚠️ *Alerta Vence Nunca*%0A%0A";
   if (vencidos.length > 0) {
     msg += "❌ *VENCIDOS:*%0A";
@@ -450,7 +454,8 @@ async function notificarWhatsApp(vencidos, criticos) {
     msg += "%0A";
   }
   msg += "Verifique o sistema urgentemente! 🔥";
-  const url = `https://api.callmebot.com/whatsapp.php?phone=${numero}&text=${msg}&apikey=free`;
+
+  const url = `https://api.callmebot.com/whatsapp.php?phone=${numero}&text=${msg}&apikey=${apikey}`;
   try { await fetch(url, { method: "GET", mode: "no-cors" }); alert("📱 Notificação enviada para seu WhatsApp!"); }
-  catch (err) { console.error(err); alert("Erro ao enviar. Verifique o número e tente novamente."); }
+  catch (err) { console.error(err); alert("Erro ao enviar. Verifique o número e APIKEY."); }
 }
