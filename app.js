@@ -365,15 +365,15 @@ async function carregarProdutos() {
     </div>
   `;
 
-  // Botão Notificar WhatsApp
-  if ((vencidos > 0 || criticos > 0) && !document.getElementById("btnNoficWhats")) {
-    const btnWhats = document.createElement("button");
-    btnWhats.id = "btnNoficWhats";
-    btnWhats.className = "btn btn-green";
-    btnWhats.style.cssText = "width:100%; margin-top:12px; padding:12px; font-size:14px";
-    btnWhats.innerHTML = "📱 Notificar WhatsApp";
-    btnWhats.onclick = () => notificarWhatsApp(listaVencidos, listaCriticos);
-    alertas.appendChild(btnWhats);
+  // Botão Notificar por Email
+  if ((vencidos > 0 || criticos > 0) && !document.getElementById("btnNotifEmail")) {
+    const btnEmail = document.createElement("button");
+    btnEmail.id = "btnNotifEmail";
+    btnEmail.className = "btn btn-green";
+    btnEmail.style.cssText = "width:100%; margin-top:12px; padding:12px; font-size:14px";
+    btnEmail.innerHTML = "📧 Notificar por Email";
+    btnEmail.onclick = () => notificarEmail(listaVencidos, listaCriticos);
+    alertas.appendChild(btnEmail);
   }
 
   document.getElementById("totalProdutos").textContent = data.length;
@@ -433,39 +433,38 @@ async function excluirProduto(id, nome) {
 function toggleResumo(id) { const el = document.getElementById(id); if (!el) return; el.style.display = el.style.display === "none" ? "block" : "none"; }
 
 // ==========================
-// 📱 NOTIFICAR WHATSAPP (CallMeBot)
+// 📧 NOTIFICAR POR EMAIL
 // ==========================
-async function notificarWhatsApp(vencidos, criticos) {
-  let numero = localStorage.getItem("callmebot_numero");
-  let apikey = localStorage.getItem("callmebot_apikey");
-  
-  if (!numero) {
-    numero = prompt("Digite seu WhatsApp completo (ex: 5511999999999):");
-    if (!numero) return;
-    localStorage.setItem("callmebot_numero", numero);
-  }
-  
-  if (!apikey) {
-    apikey = prompt("Digite sua APIKEY:");
-    if (!apikey) return;
-    localStorage.setItem("callmebot_apikey", apikey);
+function notificarEmail(vencidos, criticos) {
+  if (!usuarioAtual || !usuarioAtual.email) {
+    alert("Email do usuário não disponível.");
+    return;
   }
 
-  let msg = "⚠️ Vence Nunca\n\n";
+  let corpo = "Olá! %0D%0A%0D%0A";
+  corpo += "Segue o resumo dos produtos que precisam de atenção no sistema Vence Nunca:%0D%0A%0D%0A";
+
   if (vencidos.length > 0) {
-    msg += "❌ Vencidos:\n";
-    vencidos.forEach(p => { msg += `• ${p.nome} (${p.dias} dias atrás)\n`; });
-    msg += "\n";
-  }
-  if (criticos.length > 0) {
-    msg += "⚠️ Criticos:\n";
-    criticos.forEach(p => { msg += `• ${p.nome} (${p.dias} dias restantes)\n`; });
-    msg += "\n";
+    corpo += "❌ PRODUTOS VENCIDOS:%0D%0A";
+    vencidos.forEach(p => {
+      corpo += `• ${p.nome} — venceu há ${p.dias} dia(s) (Forn: ${p.fornecedor}, Lote: ${p.lote}, Validade: ${p.validade})%0D%0A`;
+    });
+    corpo += "%0D%0A";
   }
 
-  const url = `https://api.callmebot.com/whatsapp.php?source=web&phone=${encodeURIComponent(numero)}&text=${encodeURIComponent(msg)}&apikey=${encodeURIComponent(apikey)}`;
-  
-  // Abre a URL diretamente - método garantido
-  window.open(url, 'callmebot', 'width=1,height=1');
-  alert("✅ Enviando... Feche a aba popup quando quiser. Verifique seu WhatsApp em instantes!");
+  if (criticos.length > 0) {
+    corpo += "⚠️ PRODUTOS CRÍTICOS (próximos do vencimento):%0D%0A";
+    criticos.forEach(p => {
+      corpo += `• ${p.nome} — vence em ${p.dias} dia(s) (Forn: ${p.fornecedor}, Lote: ${p.lote}, Validade: ${p.validade})%0D%0A`;
+    });
+    corpo += "%0D%0A";
+  }
+
+  corpo += "Acesse o sistema para mais detalhes: https://frivon.github.io/sistemaestoquevalidade/%0D%0A%0D%0A";
+  corpo += "— Vence Nunca";
+
+  const assunto = encodeURIComponent("[VENCE NUNCA] Alertas de Validade");
+  const mailto = `mailto:${usuarioAtual.email}?subject=${assunto}&body=${corpo}`;
+
+  window.location.href = mailto;
 }
