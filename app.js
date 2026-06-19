@@ -1,6 +1,7 @@
 let supabaseClient;
 let html5QrCode = null;
 let usuarioAtual = null;
+let usuarioEditandoId = null;
 
 function hojeLocal() {
   const d = new Date();
@@ -183,6 +184,8 @@ async function mostrarSistema() {
   document.getElementById("sistemaPrincipal").style.display = "block";
   document.getElementById("usuarioEmail").textContent = usuarioAtual.email;
   const isAdmin = usuarioAtual.email === "wesley.thoy@hotmail.com";
+  document.getElementById("btnConfig").style.display = isAdmin ? "inline-block" : "none";
+  document.getElementById("painelConfiguracoes").style.display = "none";
   const areaAdmin = document.getElementById("areaAdmin");
   const areaProdutos = document.getElementById("areaProdutos");
   if (isAdmin) { areaAdmin.style.display = "block"; areaProdutos.style.display = "none"; carregarPendentes(); carregarClientesAtivos(); }
@@ -261,6 +264,7 @@ async function carregarClientesAtivos() {
           <span style="color:#6b7280; font-size:12px">📅 Desde: ${dataFmt}</span>
         </div>
         <div>
+          <button class="btn btn-blue" style="padding:8px 16px; font-size:13px; margin-right:6px;" onclick="abrirEdicaoEmail('${p.user_id}', '${p.email}')">✏️ Editar</button>
           <button class="btn btn-red" style="padding:8px 16px; font-size:13px" onclick="desativarCliente('${p.user_id}', '${p.nome_estabelecimento}')">🚫 Desativar</button>
         </div>
       </div>
@@ -480,6 +484,55 @@ async function excluirProduto(id, nome) {
 }
 
 function toggleResumo(id) { const el = document.getElementById(id); if (!el) return; el.style.display = el.style.display === "none" ? "block" : "none"; }
+
+// ==========================
+// 🛠️ ADMIN: EDITAR EMAIL DO CLIENTE
+// ==========================
+function abrirEdicaoEmail(userId, emailAtual) {
+  usuarioEditandoId = userId;
+  document.getElementById("editUserId").value = userId;
+  document.getElementById("editEmailAtual").value = emailAtual;
+  document.getElementById("editEmailNovo").value = "";
+  document.getElementById("editError").style.display = "none";
+  document.getElementById("editSuccess").style.display = "none";
+  document.getElementById("modalEdicaoEmail").style.display = "flex";
+}
+
+function fecharModalEdicao() {
+  document.getElementById("modalEdicaoEmail").style.display = "none";
+  usuarioEditandoId = null;
+}
+
+async function atualizarEmailAdmin() {
+  if (!usuarioEditandoId) return;
+  const novoEmail = document.getElementById("editEmailNovo").value.trim().toLowerCase();
+  const erroDiv = document.getElementById("editError");
+  const sucessoDiv = document.getElementById("editSuccess");
+  erroDiv.style.display = "none";
+  sucessoDiv.style.display = "none";
+
+  if (!novoEmail) { erroDiv.textContent = "Digite o novo email."; erroDiv.style.display = "block"; return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(novoEmail)) { erroDiv.textContent = "Email inválido."; erroDiv.style.display = "block"; return; }
+
+  const btn = document.querySelector('#modalEdicaoEmail .btn-blue');
+  const originalText = btn.innerHTML;
+  btn.innerHTML = "⏳ Salvando..."; btn.disabled = true;
+
+  try {
+    // 1. Atualiza public.perfis
+    const { error: perfilError } = await supabaseClient.from("perfis").update({ email: novoEmail }).eq("user_id", usuarioEditandoId);
+    if (perfilError) throw perfilError;
+    sucessoDiv.textContent = "✅ Email atualizado na base de dados com sucesso.";
+    sucessoDiv.style.display = "block";
+    carregarClientesAtivos();
+    fecharModalEdicao();
+  } catch (err) {
+    erroDiv.textContent = (err.message || "Erro ao atualizar.");
+    erroDiv.style.display = "block";
+  } finally {
+    btn.innerHTML = originalText; btn.disabled = false;
+  }
+}
 
 // ==========================
 // 📧 NOTIFICAR POR EMAIL (EmailJS — envio automático)
