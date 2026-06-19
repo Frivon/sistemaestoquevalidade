@@ -108,7 +108,7 @@
   <div class="user-bar">
     <div class="user-info"><span>👤</span><span>Logado como <strong id="usuarioEmail">-</strong></span></div>
     <div style="display:flex; gap:8px; align-items:center;">
-      <button class="btn-logout" onclick="toggleConfiguracoes()" title="Configurações da conta">⚙️ Config</button>
+      <button id="btnConfig" class="btn-logout" onclick="toggleConfiguracoes()" title="Configurações da conta">⚙️ Config</button>
       <button class="btn-logout" onclick="fazerLogout()">🚪 Sair</button>
     </div>
   </div>
@@ -214,6 +214,25 @@
 </div>
 <footer class="text-center mt-8 mb-4 clean-footer">Sistema desenvolvido por <span>WesleyDevOps</span></footer>
 </div>
+
+<!-- 🛠️ Modal: Editar Email do Cliente (Admin) -->
+<div id="modalEdicaoEmail" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center;">
+  <div style="background:#1f2937; border-radius:16px; padding:28px; width:100%; max-width:420px; box-shadow:0 8px 32px rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.04);">
+    <h3 style="font-size:16px; font-weight:700; color:#f9fafb; margin-bottom:16px;">✏️ Editar Email do Cliente</h3>
+    <div id="editError" class="login-error" style="display:none; margin-bottom:10px;"></div>
+    <div id="editSuccess" style="display:none; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); color:#34d399; padding:10px 14px; border-radius:10px; font-size:13px; margin-bottom:10px;"></div>
+    <input id="editUserId" type="hidden">
+    <label style="font-size:12px; color:#6b7280; margin-bottom:4px; display:block;">Email atual</label>
+    <input id="editEmailAtual" type="email" class="clean-input" style="cursor:not-allowed; opacity:0.7; margin-bottom:12px;" readonly>
+    <label style="font-size:12px; color:#6b7280; margin-bottom:4px; display:block;">Novo email</label>
+    <input id="editEmailNovo" type="email" placeholder="novoemail@exemplo.com" class="clean-input" style="margin-bottom:16px;">
+    <div style="display:flex; gap:10px;">
+      <button class="btn btn-blue" onclick="atualizarEmailAdmin()">💾 Salvar</button>
+      <button class="btn btn-red" onclick="fecharModalEdicao()">❌ Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <script src="app.js"></script>
 </body>
 </html>
