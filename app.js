@@ -365,15 +365,15 @@ async function carregarProdutos() {
     </div>
   `;
 
-  // Botão Notificar por Email
-  if ((vencidos > 0 || criticos > 0) && !document.getElementById("btnNotifEmail")) {
-    const btnEmail = document.createElement("button");
-    btnEmail.id = "btnNotifEmail";
-    btnEmail.className = "btn btn-green";
-    btnEmail.style.cssText = "width:100%; margin-top:12px; padding:12px; font-size:14px";
-    btnEmail.innerHTML = "📧 Notificar por Email";
-    btnEmail.onclick = () => notificarEmail(listaVencidos, listaCriticos);
-    alertas.appendChild(btnEmail);
+  // Botão Notificar WhatsApp
+  if ((vencidos > 0 || criticos > 0) && !document.getElementById("btnNoficWhats")) {
+    const btnWhats = document.createElement("button");
+    btnWhats.id = "btnNoficWhats";
+    btnWhats.className = "btn btn-green";
+    btnWhats.style.cssText = "width:100%; margin-top:12px; padding:12px; font-size:14px";
+    btnWhats.innerHTML = "📱 Notificar WhatsApp";
+    btnWhats.onclick = () => notificarWhatsApp(listaVencidos, listaCriticos);
+    alertas.appendChild(btnWhats);
   }
 
   document.getElementById("totalProdutos").textContent = data.length;
@@ -433,38 +433,47 @@ async function excluirProduto(id, nome) {
 function toggleResumo(id) { const el = document.getElementById(id); if (!el) return; el.style.display = el.style.display === "none" ? "block" : "none"; }
 
 // ==========================
-// 📧 NOTIFICAR POR EMAIL
+// 📱 NOTIFICAR WHATSAPP (CallMeBot)
 // ==========================
-function notificarEmail(vencidos, criticos) {
-  if (!usuarioAtual || !usuarioAtual.email) {
-    alert("Email do usuário não disponível.");
-    return;
+async function notificarWhatsApp(vencidos, criticos) {
+  let numero = localStorage.getItem("callmebot_numero");
+  let apikey = localStorage.getItem("callmebot_apikey");
+  
+  if (!numero) {
+    numero = prompt("Digite seu WhatsApp completo (ex: 5511999999999):");
+    if (!numero) return;
+    localStorage.setItem("callmebot_numero", numero);
+  }
+  
+  if (!apikey) {
+    apikey = prompt("Digite sua APIKEY:");
+    if (!apikey) return;
+    localStorage.setItem("callmebot_apikey", apikey);
   }
 
-  let corpo = "Olá! %0D%0A%0D%0A";
-  corpo += "Segue o resumo dos produtos que precisam de atenção no sistema Vence Nunca:%0D%0A%0D%0A";
-
+  let msg = "⚠️ Vence Nunca%0A%0A";
   if (vencidos.length > 0) {
-    corpo += "❌ PRODUTOS VENCIDOS:%0D%0A";
-    vencidos.forEach(p => {
-      corpo += `• ${p.nome} — venceu há ${p.dias} dia(s) (Forn: ${p.fornecedor}, Lote: ${p.lote}, Validade: ${p.validade})%0D%0A`;
-    });
-    corpo += "%0D%0A";
+    msg += "❌ Vencidos:%0A";
+    vencidos.forEach(p => { msg += `• ${p.nome} (${p.dias} dias atras)%0A`; });
+    msg += "%0A";
   }
-
   if (criticos.length > 0) {
-    corpo += "⚠️ PRODUTOS CRÍTICOS (próximos do vencimento):%0D%0A";
-    criticos.forEach(p => {
-      corpo += `• ${p.nome} — vence em ${p.dias} dia(s) (Forn: ${p.fornecedor}, Lote: ${p.lote}, Validade: ${p.validade})%0D%0A`;
-    });
-    corpo += "%0D%0A";
+    msg += "⚠️ Criticos:%0A";
+    criticos.forEach(p => { msg += `• ${p.nome} (${p.dias} dias restantes)%0A`; });
+    msg += "%0A";
   }
 
-  corpo += "Acesse o sistema para mais detalhes: https://frivon.github.io/sistemaestoquevalidade/%0D%0A%0D%0A";
-  corpo += "— Vence Nunca";
-
-  const assunto = encodeURIComponent("[VENCE NUNCA] Alertas de Validade");
-  const mailto = `mailto:${usuarioAtual.email}?subject=${assunto}&body=${corpo}`;
-
-  window.location.href = mailto;
+  const url = `https://api.callmebot.com/whatsapp.php?phone=${numero}&text=${msg}&apikey=${apikey}`;
+  
+  // Iframe invisivel - mais confiavel que window.open
+  let iframe = document.getElementById("callmebot-iframe");
+  if (!iframe) {
+    iframe = document.createElement("iframe");
+    iframe.id = "callmebot-iframe";
+    iframe.style.cssText = "width:1px;height:1px;border:none;position:absolute;left:-9999px;";
+    document.body.appendChild(iframe);
+  }
+  iframe.src = url + "&_=" + Date.now();
+  
+  alert("✅ Enviando! Aguarde alguns segundos e verifique seu WhatsApp.");
 }
