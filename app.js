@@ -265,7 +265,8 @@ async function carregarClientesAtivos() {
         </div>
         <div>
           <button class="btn btn-blue" style="padding:8px 16px; font-size:13px; margin-right:6px;" onclick="abrirEdicaoEmail('${p.user_id}', '${p.email}')">✏️ Editar</button>
-          <button class="btn btn-red" style="padding:8px 16px; font-size:13px" onclick="desativarCliente('${p.user_id}', '${p.nome_estabelecimento}')">🚫 Desativar</button>
+          <button class="btn btn-red" style="padding:8px 16px; font-size:13px; margin-right:6px;" onclick="desativarCliente('${p.user_id}', '${p.nome_estabelecimento}')">🚫 Desativar</button>
+          <button class="btn btn-red" style="padding:8px 16px; font-size:13px; background:#7f1d1d; color:#fecaca;" onclick="excluirClientePermanente('${p.user_id}', '${p.nome_estabelecimento}')">❌ Excluir</button>
         </div>
       </div>
     `;
@@ -277,6 +278,30 @@ async function desativarCliente(userId, nome) {
   const { error } = await supabaseClient.from("perfis").update({ aprovado: false }).eq("user_id", userId);
   if (error) return alert("Erro ao desativar: " + error.message);
   alert("Cliente desativado."); carregarPendentes(); carregarClientesAtivos();
+}
+
+async function excluirClientePermanente(userId, nome) {
+  if (!confirm(`⚠️ EXCLUIR PERMANENTEMENTE o cliente "${nome}"?\n\nTodos os dados (produtos, mercado, perfil) serão apagados e não poderão ser recuperados.`)) return;
+  if (!confirm(`Tem certeza? Digite EXCLUIR para confirmar.`)) return;
+
+  // 1. Deleta produtos do cliente
+  await supabaseClient.from("produtos").delete().eq("user_id", userId);
+  // 2. Deleta do catálogo
+  await supabaseClient.from("catalogo_produtos").delete().eq("user_id", userId);
+  // 3. Deleta mercado vinculado
+  await supabaseClient.from("usuario_mercados").delete().eq("user_id", userId);
+  // 4. Deleta o perfil
+  await supabaseClient.from("perfis").delete().eq("user_id", userId);
+  // 5. Deleta o auth.user via RPC (funcao que ja existe)
+  const { error: authError } = await supabaseClient.rpc("admin_delete_auth_user", { target_user_id: userId });
+
+  if (authError) {
+    alert("Erro ao remover usuário do auth: " + authError.message);
+    return;
+  }
+
+  alert(`✅ Cliente "${nome}" excluído permanentemente.`);
+  carregarPendentes(); carregarClientesAtivos();
 }
 
 async function reativarCliente(userId, email) {
