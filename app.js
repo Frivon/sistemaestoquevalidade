@@ -121,6 +121,55 @@ async function fazerLogout() {
   document.getElementById("loginEmail").value = "";
   document.getElementById("loginSenha").value = "";
   document.getElementById("loginErro").style.display = "none";
+  document.getElementById("painelConfiguracoes").style.display = "none";
+}
+
+function toggleConfiguracoes() {
+  const painel = document.getElementById("painelConfiguracoes");
+  if (painel.style.display === "none") {
+    document.getElementById("configEmailAtual").value = usuarioAtual?.email || "";
+    document.getElementById("configEmailNovo").value = "";
+    document.getElementById("configError").style.display = "none";
+    document.getElementById("configSuccess").style.display = "none";
+    painel.style.display = "block";
+  } else {
+    painel.style.display = "none";
+  }
+}
+
+async function atualizarEmailUsuario() {
+  const novoEmail = document.getElementById("configEmailNovo").value.trim().toLowerCase();
+  const erroDiv = document.getElementById("configError");
+  const sucessoDiv = document.getElementById("configSuccess");
+  erroDiv.style.display = "none";
+  sucessoDiv.style.display = "none";
+
+  if (!novoEmail) { erroDiv.textContent = "Digite o novo email."; erroDiv.style.display = "block"; return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(novoEmail)) { erroDiv.textContent = "Email inválido."; erroDiv.style.display = "block"; return; }
+  if (novoEmail === usuarioAtual?.email) { erroDiv.textContent = "O novo email é igual ao atual."; erroDiv.style.display = "block"; return; }
+
+  const btn = document.querySelector('#painelConfiguracoes .btn');
+  const originalText = btn.innerHTML;
+  btn.innerHTML = "⏳ Enviando..."; btn.disabled = true;
+
+  try {
+    // 1. Atualiza email no auth.users — envia confirmação ao novo email
+    const { data, error: authError } = await supabaseClient.auth.updateUser({ email: novoEmail });
+    if (authError) throw authError;
+
+    // 2. Atualiza email na tabela public.perfis
+    const { error: perfilError } = await supabaseClient.from("perfis").update({ email: novoEmail }).eq("user_id", usuarioAtual.id);
+    if (perfilError) throw perfilError;
+
+    sucessoDiv.textContent = "✅ Email atualizado! Verifique o novo email e confirme o link recebido. Depois, faça login novamente.";
+    sucessoDiv.style.display = "block";
+    document.getElementById("configEmailNovo").value = "";
+  } catch (err) {
+    erroDiv.textContent = "❌ " + (err.message || "Erro ao atualizar email. Tente novamente.");
+    erroDiv.style.display = "block";
+  } finally {
+    btn.innerHTML = originalText; btn.disabled = false;
+  }
 }
 
 let mercadoDoUsuario = "";
