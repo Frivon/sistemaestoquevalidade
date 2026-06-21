@@ -183,7 +183,8 @@ async function mostrarSistema() {
   document.getElementById("telaLogin").style.display = "none";
   document.getElementById("sistemaPrincipal").style.display = "block";
   document.getElementById("usuarioEmail").textContent = usuarioAtual.email;
-  const isAdmin = usuarioAtual.email === "wesley.thoy@hotmail.com";
+  const { data: perfilData } = await supabaseClient.from("perfis").select("role").eq("user_id", usuarioAtual.id).limit(1);
+  const isAdmin = perfilData?.[0]?.role === "admin";
   document.getElementById("btnConfig").style.display = isAdmin ? "inline-block" : "none";
   document.getElementById("painelConfiguracoes").style.display = "none";
   const areaAdmin = document.getElementById("areaAdmin");
@@ -458,6 +459,9 @@ async function carregarProdutos() {
   document.getElementById("vencidos").textContent = vencidos;
   document.getElementById("alerta").textContent = criticos;
   document.getElementById("ok").textContent = ok;
+
+  // Atualiza gráfico de status
+  atualizarGraficoStatus(vencidos, criticos, ok);
 }
 
 function abrirEdicao(btn) {
@@ -597,4 +601,42 @@ async function notificarEmail(vencidos, criticos) {
     console.error("Erro ao enviar email:", err);
     alert("❌ Falha ao enviar notificação por email. Tente novamente mais tarde.");
   }
+}
+
+// ==========================
+// 📊 GRÁFICO DE STATUS
+// ==========================
+function atualizarGraficoStatus(vencidos, criticos, ok) {
+  const ctx = document.getElementById("graficoStatus");
+  if (!ctx) return;
+
+  if (window.meuGrafico) window.meuGrafico.destroy();
+
+  window.meuGrafico = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['❌ Vencidos', '⚠️ Críticos', '✅ OK'],
+      datasets: [{
+        data: [vencidos, criticos, ok],
+        backgroundColor: ['#ef4444', '#f59e0b', '#10b981'],
+        borderColor: ['#991b1b', '#b45309', '#047857'],
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: '#e5e7eb', font: { size: 13 } }
+        },
+        title: {
+          display: true,
+          text: 'Status dos Produtos',
+          color: '#f3f4f6',
+          font: { size: 15, weight: 'bold' }
+        }
+      }
+    }
+  });
 }
