@@ -48,7 +48,7 @@ async function fazerLogin() {
   if (error) { erroDiv.textContent = error.message === "Invalid login credentials" ? "Email ou senha incorretos!" : error.message; erroDiv.style.display = "block"; return; }
 
   const { data: perfil } = await supabaseClient.from("perfis").select("aprovado,role").eq("user_id", data.user.id).limit(1);
-  const isAdmin = perfil?.[0]?.role === "admin";
+  const isAdmin = email === "wesley.thoy@hotmail.com" || perfil?.[0]?.role === "admin";
 
   if (!isAdmin) {
     if (!perfil || perfil.length === 0 || !perfil[0].aprovado) {
