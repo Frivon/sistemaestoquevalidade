@@ -2,6 +2,7 @@ let supabaseClient;
 let html5QrCode = null;
 let usuarioAtual = null;
 let usuarioEditandoId = null;
+let mercadoDoUsuario = "";
 
 function hojeLocal() {
   const d = new Date();
@@ -25,7 +26,8 @@ window.addEventListener("DOMContentLoaded", async () => {
       "https://lpigpstbwtoeaenewzkz.supabase.co",
       "sb_publishable_uKJCAZ3hTCsE4TnCeDs1lg_zFcbrk_S"
     );
-    console.log("✅ Supabase conectado");
+    emailjs.init({ publicKey: "x7920G1aMjPlDrutG" });
+
     document.getElementById("btnLogin").addEventListener("click", fazerLogin);
     document.getElementById("btnCadastrar")?.addEventListener("click", fazerCadastro);
     document.getElementById("loginSenha").addEventListener("keydown", (e) => {
@@ -44,9 +46,11 @@ async function fazerLogin() {
   erroDiv.style.display = "none";
   const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password: senha });
   if (error) { erroDiv.textContent = error.message === "Invalid login credentials" ? "Email ou senha incorretos!" : error.message; erroDiv.style.display = "block"; return; }
-  const isAdmin = email === "wesley.thoy@hotmail.com";
+
+  const { data: perfil } = await supabaseClient.from("perfis").select("aprovado,role").eq("user_id", data.user.id).limit(1);
+  const isAdmin = perfil?.[0]?.role === "admin";
+
   if (!isAdmin) {
-    const { data: perfil } = await supabaseClient.from("perfis").select("aprovado").eq("user_id", data.user.id).limit(1);
     if (!perfil || perfil.length === 0 || !perfil[0].aprovado) {
       await supabaseClient.auth.signOut();
       erroDiv.style.display = "block"; erroDiv.style.borderColor = "rgba(245,158,11,0.3)"; erroDiv.style.background = "rgba(245,158,11,0.1)"; erroDiv.style.color = "#fbbf24";
@@ -71,19 +75,11 @@ async function fazerCadastro() {
   erroDiv.style.display = "none";
   try {
     const { data, error } = await supabaseClient.auth.signUp({
-      email,
-      password: senha,
-      options: {
-        data: {
-          nome_estabelecimento: nome || "",
-          mercado: mercado || "",
-          whatsapp: whatsapp || ""
-        }
-      }
+      email, password: senha,
+      options: { data: { nome_estabelecimento: nome || "", mercado: mercado || "", whatsapp: whatsapp || "" } }
     });
     if (error) { erroDiv.textContent = error.message; erroDiv.style.display = "block"; return; }
     if (data.user) {
-      // Trigger do Supabase insere automaticamente em perfis
       await supabaseClient.auth.signOut();
       erroDiv.style.display = "block"; erroDiv.style.borderColor = "rgba(16,185,129,0.3)"; erroDiv.style.background = "rgba(16,185,129,0.1)"; erroDiv.style.color = "#34d399";
       erroDiv.textContent = "✅ Cadastro enviado! Aguarde a aprovação do administrador para acessar o sistema.";
@@ -142,26 +138,18 @@ async function atualizarEmailUsuario() {
   const novoEmail = document.getElementById("configEmailNovo").value.trim().toLowerCase();
   const erroDiv = document.getElementById("configError");
   const sucessoDiv = document.getElementById("configSuccess");
-  erroDiv.style.display = "none";
-  sucessoDiv.style.display = "none";
-
+  erroDiv.style.display = "none"; sucessoDiv.style.display = "none";
   if (!novoEmail) { erroDiv.textContent = "Digite o novo email."; erroDiv.style.display = "block"; return; }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(novoEmail)) { erroDiv.textContent = "Email inválido."; erroDiv.style.display = "block"; return; }
   if (novoEmail === usuarioAtual?.email) { erroDiv.textContent = "O novo email é igual ao atual."; erroDiv.style.display = "block"; return; }
-
   const btn = document.querySelector('#painelConfiguracoes .btn');
   const originalText = btn.innerHTML;
   btn.innerHTML = "⏳ Enviando..."; btn.disabled = true;
-
   try {
-    // 1. Atualiza email no auth.users — envia confirmação ao novo email
     const { data, error: authError } = await supabaseClient.auth.updateUser({ email: novoEmail });
     if (authError) throw authError;
-
-    // 2. Atualiza email na tabela public.perfis
     const { error: perfilError } = await supabaseClient.from("perfis").update({ email: novoEmail }).eq("user_id", usuarioAtual.id);
     if (perfilError) throw perfilError;
-
     sucessoDiv.textContent = "✅ Email atualizado! Verifique o novo email e confirme o link recebido. Depois, faça login novamente.";
     sucessoDiv.style.display = "block";
     document.getElementById("configEmailNovo").value = "";
@@ -173,7 +161,6 @@ async function atualizarEmailUsuario() {
   }
 }
 
-let mercadoDoUsuario = "";
 async function carregarMercadoDoUsuario() {
   const { data, error } = await supabaseClient.from("usuario_mercados").select("mercado").eq("user_id", usuarioAtual.id).limit(1);
   if (!error && data && data.length > 0) mercadoDoUsuario = data[0].mercado; else mercadoDoUsuario = "";
@@ -183,12 +170,15 @@ async function mostrarSistema() {
   document.getElementById("telaLogin").style.display = "none";
   document.getElementById("sistemaPrincipal").style.display = "block";
   document.getElementById("usuarioEmail").textContent = usuarioAtual.email;
+
   const { data: perfilData } = await supabaseClient.from("perfis").select("role").eq("user_id", usuarioAtual.id).limit(1);
   const isAdmin = perfilData?.[0]?.role === "admin";
+
   document.getElementById("btnConfig").style.display = isAdmin ? "inline-block" : "none";
   document.getElementById("painelConfiguracoes").style.display = "none";
   const areaAdmin = document.getElementById("areaAdmin");
   const areaProdutos = document.getElementById("areaProdutos");
+
   if (isAdmin) { areaAdmin.style.display = "block"; areaProdutos.style.display = "none"; carregarPendentes(); carregarClientesAtivos(); }
   else {
     areaAdmin.style.display = "none"; areaProdutos.style.display = "block";
@@ -282,18 +272,13 @@ async function desativarCliente(userId, nome) {
 }
 
 async function excluirClientePermanente(userId, nome) {
-  if (!confirm(`⚠️ EXCLUIR PERMANENTEMENTE o cliente "${nome}"?\n\nTodos os dados (produtos, mercado, perfil) serão apagados e não poderão ser recuperados.`)) return;
-  if (!confirm(`Tem certeza? Digite EXCLUIR para confirmar.`)) return;
+  if (!confirm(`⚠️ EXCLUIR PERMANENTEMENTE o cliente "${nome}"?\n\nTodos os dados serão apagados.`)) return;
+  if (!confirm(`Tem certeza?`)) return;
 
-  // 1. Deleta produtos do cliente
   await supabaseClient.from("produtos").delete().eq("user_id", userId);
-  // 2. Deleta do catálogo
   await supabaseClient.from("catalogo_produtos").delete().eq("user_id", userId);
-  // 3. Deleta mercado vinculado
   await supabaseClient.from("usuario_mercados").delete().eq("user_id", userId);
-  // 4. Deleta o perfil
   await supabaseClient.from("perfis").delete().eq("user_id", userId);
-  // 5. Deleta o auth.user via RPC (funcao que ja existe)
   const { error: authError } = await supabaseClient.rpc("admin_delete_auth_user", { target_user_id: userId });
 
   if (authError) {
@@ -321,16 +306,15 @@ async function buscarPorCodigo(codigo) {
     inputNome.value = catalogo[0].nome; inputFornecedor.value = catalogo[0].fornecedor || "";
     inputNome.style.borderColor = "#10b981"; inputFornecedor.style.borderColor = catalogo[0].fornecedor ? "#10b981" : "";
     setTimeout(() => { inputNome.style.borderColor = ""; inputFornecedor.style.borderColor = ""; }, 2000);
-    console.log("✅ Encontrado no catálogo:", catalogo[0].nome); return;
+    return;
   }
   const { data: produtos } = await supabaseClient.from("produtos").select("nome, fornecedor").eq("codigo_barras", codigo).limit(1);
   if (produtos && produtos.length > 0) {
     inputNome.value = produtos[0].nome; inputFornecedor.value = produtos[0].fornecedor || "";
     inputNome.style.borderColor = "#10b981"; setTimeout(() => { inputNome.style.borderColor = ""; }, 2000);
-    console.log("✅ Encontrado em produtos:", produtos[0].nome); return;
+    return;
   }
   inputNome.value = ""; inputFornecedor.value = "";
-  console.log("ℹ️ Código não encontrado, preencha manualmente");
 }
 
 function iniciarScanner() {
@@ -341,7 +325,7 @@ function iniciarScanner() {
 }
 
 function pararScanner() {
-  if (html5QrCode) { html5QrCode.stop().then(() => { html5QrCode.clear(); html5QrCode = null; console.log("Scanner parado"); }); }
+  if (html5QrCode) { html5QrCode.stop().then(() => { html5QrCode.clear(); html5QrCode = null; }); }
 }
 
 async function salvarProduto() {
@@ -444,7 +428,6 @@ async function carregarProdutos() {
     </div>
   `;
 
-  // Botão Notificar por Email
   if ((vencidos > 0 || criticos > 0) && !document.getElementById("btnNotifEmail")) {
     const btnEmail = document.createElement("button");
     btnEmail.id = "btnNotifEmail";
@@ -460,7 +443,6 @@ async function carregarProdutos() {
   document.getElementById("alerta").textContent = criticos;
   document.getElementById("ok").textContent = ok;
 
-  // Atualiza gráfico de status
   atualizarGraficoStatus(vencidos, criticos, ok);
 }
 
@@ -514,9 +496,6 @@ async function excluirProduto(id, nome) {
 
 function toggleResumo(id) { const el = document.getElementById(id); if (!el) return; el.style.display = el.style.display === "none" ? "block" : "none"; }
 
-// ==========================
-// 🛠️ ADMIN: EDITAR EMAIL DO CLIENTE
-// ==========================
 function abrirEdicaoEmail(userId, emailAtual) {
   usuarioEditandoId = userId;
   document.getElementById("editUserId").value = userId;
@@ -537,18 +516,13 @@ async function atualizarEmailAdmin() {
   const novoEmail = document.getElementById("editEmailNovo").value.trim().toLowerCase();
   const erroDiv = document.getElementById("editError");
   const sucessoDiv = document.getElementById("editSuccess");
-  erroDiv.style.display = "none";
-  sucessoDiv.style.display = "none";
-
+  erroDiv.style.display = "none"; sucessoDiv.style.display = "none";
   if (!novoEmail) { erroDiv.textContent = "Digite o novo email."; erroDiv.style.display = "block"; return; }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(novoEmail)) { erroDiv.textContent = "Email inválido."; erroDiv.style.display = "block"; return; }
-
   const btn = document.querySelector('#modalEdicaoEmail .btn-blue');
   const originalText = btn.innerHTML;
   btn.innerHTML = "⏳ Salvando..."; btn.disabled = true;
-
   try {
-    // 1. Atualiza public.perfis
     const { error: perfilError } = await supabaseClient.from("perfis").update({ email: novoEmail }).eq("user_id", usuarioEditandoId);
     if (perfilError) throw perfilError;
     sucessoDiv.textContent = "✅ Email atualizado na base de dados com sucesso.";
@@ -563,39 +537,20 @@ async function atualizarEmailAdmin() {
   }
 }
 
-// ==========================
-// 📧 NOTIFICAR POR EMAIL (EmailJS — envio automático)
-// ==========================
 async function notificarEmail(vencidos, criticos) {
-  if (!usuarioAtual || !usuarioAtual.email) {
-    alert("Email do usuário não disponível.");
-    return;
-  }
-
+  if (!usuarioAtual || !usuarioAtual.email) { alert("Email do usuário não disponível."); return; }
   let mensagem = "";
-
   if (vencidos.length > 0) {
     mensagem += "❌ PRODUTOS VENCIDOS:\n\n";
-    vencidos.forEach(p => {
-      mensagem += `• ${p.nome} — venceu há ${p.dias} dia(s)\n  Fornecedor: ${p.fornecedor} | Lote: ${p.lote} | Validade: ${p.validade}\n\n`;
-    });
+    vencidos.forEach(p => { mensagem += `• ${p.nome} — venceu há ${p.dias} dia(s)\n  Fornecedor: ${p.fornecedor} | Lote: ${p.lote} | Validade: ${p.validade}\n\n`; });
   }
-
   if (criticos.length > 0) {
     mensagem += "⚠️ PRODUTOS CRÍTICOS (próximos do vencimento):\n\n";
-    criticos.forEach(p => {
-      mensagem += `• ${p.nome} — vence em ${p.dias} dia(s)\n  Fornecedor: ${p.fornecedor} | Lote: ${p.lote} | Validade: ${p.validade}\n\n`;
-    });
+    criticos.forEach(p => { mensagem += `• ${p.nome} — vence em ${p.dias} dia(s)\n  Fornecedor: ${p.fornecedor} | Lote: ${p.lote} | Validade: ${p.validade}\n\n`; });
   }
-
   mensagem += "Acesse o sistema para mais detalhes:\nhttps://frivon.github.io/sistemaestoquevalidade/\n\n— Vence Nunca";
-
   try {
-    await emailjs.send("service_dtsgw62", "template_az8lfps", {
-      to_email: usuarioAtual.email,
-      message: mensagem
-    }, "x7920G1aMjPlDrutG");
-
+    await emailjs.send("service_dtsgw62", "template_az8lfps", { to_email: usuarioAtual.email, message: mensagem }, "x7920G1aMjPlDrutG");
     alert("✅ Notificação enviada por email com sucesso! Verifique sua caixa de entrada (ou spam).");
   } catch (err) {
     console.error("Erro ao enviar email:", err);
@@ -603,15 +558,10 @@ async function notificarEmail(vencidos, criticos) {
   }
 }
 
-// ==========================
-// 📊 GRÁFICO DE STATUS
-// ==========================
 function atualizarGraficoStatus(vencidos, criticos, ok) {
   const ctx = document.getElementById("graficoStatus");
   if (!ctx) return;
-
   if (window.meuGrafico) window.meuGrafico.destroy();
-
   window.meuGrafico = new Chart(ctx, {
     type: 'doughnut',
     data: {
@@ -626,16 +576,8 @@ function atualizarGraficoStatus(vencidos, criticos, ok) {
     options: {
       responsive: true,
       plugins: {
-        legend: {
-          position: 'bottom',
-          labels: { color: '#e5e7eb', font: { size: 13 } }
-        },
-        title: {
-          display: true,
-          text: 'Status dos Produtos',
-          color: '#f3f4f6',
-          font: { size: 15, weight: 'bold' }
-        }
+        legend: { position: 'bottom', labels: { color: '#e5e7eb', font: { size: 13 } } },
+        title: { display: true, text: 'Status dos Produtos', color: '#f3f4f6', font: { size: 15, weight: 'bold' } }
       }
     }
   });
