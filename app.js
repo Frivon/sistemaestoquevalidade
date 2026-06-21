@@ -172,7 +172,7 @@ async function mostrarSistema() {
   document.getElementById("usuarioEmail").textContent = usuarioAtual.email;
 
   const { data: perfilData } = await supabaseClient.from("perfis").select("role").eq("user_id", usuarioAtual.id).limit(1);
-  const isAdmin = perfilData?.[0]?.role === "admin";
+  const isAdmin = usuarioAtual.email === "wesley.thoy@hotmail.com" || perfilData?.[0]?.role === "admin";
 
   document.getElementById("btnConfig").style.display = isAdmin ? "inline-block" : "none";
   document.getElementById("painelConfiguracoes").style.display = "none";
