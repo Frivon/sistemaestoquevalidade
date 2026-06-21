@@ -9,6 +9,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/html5-qrcode"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
@@ -112,6 +113,7 @@
       <button class="btn-logout" onclick="fazerLogout()">🚪 Sair</button>
     </div>
   </div>
+
   <div id="painelConfiguracoes" style="display:none; background:#1f2937; border:1px solid rgba(255,255,255,0.04); border-radius:12px; padding:16px 20px; margin-bottom:20px;">
     <h3 style="font-size:14px; font-weight:700; color:#e5e7eb; margin-bottom:12px;">⚙️ Configurações da Conta</h3>
     <div id="configError" class="login-error" style="display:none; margin-bottom:10px;"></div>
@@ -129,35 +131,20 @@
     </div>
     <p style="font-size:12px; color:#6b7280; margin-top:10px;">Você receberá um link de confirmação no novo email. É necessário confirmar antes de fazer login com ele.</p>
   </div>
+
   <div class="flex items-center gap-3 mb-8">
     <div style="width:48px;height:48px;display:flex;align-items:center;justify-content:center">
-  <svg width="48" height="48" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="vnGradientHeader" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#2563EB"/>
-        <stop offset="100%" stop-color="#3B82F6"/>
-      </linearGradient>
-    </defs>
-
-    <rect
-      x="4"
-      y="4"
-      width="56"
-      height="56"
-      rx="18"
-      fill="url(#vnGradientHeader)"
-    />
-
-    <path
-      d="M18 33 L28 43 L46 21"
-      stroke="white"
-      stroke-width="5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      fill="none"
-    />
-  </svg>
-</div>
+      <svg width="48" height="48" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="vnGradientHeader" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#2563EB"/>
+            <stop offset="100%" stop-color="#3B82F6"/>
+          </linearGradient>
+        </defs>
+        <rect x="4" y="4" width="56" height="56" rx="18" fill="url(#vnGradientHeader)"/>
+        <path d="M18 33 L28 43 L46 21" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+    </div>
     <div>
       <h1 style="font-size:1.5rem; font-weight:800; color:#f9fafb">Vence<span style="color:#3b82f6">Nunca</span></h1>
       <p class="text-xs text-gray-500 mt-0.5">Gestão de produtos e controle de validade</p>
@@ -186,6 +173,14 @@
         <div class="stat-card stat-vencidos"><div id="vencidos" class="stat-number">0</div><div class="stat-label">Vencidos</div></div>
         <div class="stat-card stat-criticos"><div id="alerta" class="stat-number">0</div><div class="stat-label">Críticos</div></div>
         <div class="stat-card stat-ok"><div id="ok" class="stat-number">0</div><div class="stat-label">OK</div></div>
+      </div>
+    </div>
+
+    <div class="clean-card p-6 mb-5">
+      <h2 class="section-title mb-2">📈 Gráfico de Status</h2>
+      <div class="section-divider"></div>
+      <div style="max-width:320px; margin:0 auto;">
+        <canvas id="graficoStatus"></canvas>
       </div>
     </div>
 
@@ -239,10 +234,10 @@
     </div>
   </div>
 </div>
+
 <footer class="text-center mt-8 mb-4 clean-footer">Sistema desenvolvido por <span>WesleyDevOps</span></footer>
 </div>
 
-<!-- 🛠️ Modal: Editar Email do Cliente (Admin) -->
 <div id="modalEdicaoEmail" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center;">
   <div style="background:#1f2937; border-radius:16px; padding:28px; width:100%; max-width:420px; box-shadow:0 8px 32px rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.04);">
     <h3 style="font-size:16px; font-weight:700; color:#f9fafb; margin-bottom:16px;">✏️ Editar Email do Cliente</h3>
