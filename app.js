@@ -176,12 +176,21 @@ async function mostrarSistema() {
 
   document.getElementById("btnConfig").style.display = isAdmin ? "inline-block" : "none";
   document.getElementById("painelConfiguracoes").style.display = "none";
+
   const areaAdmin = document.getElementById("areaAdmin");
+  const areaDashboard = document.getElementById("areaDashboard");
   const areaProdutos = document.getElementById("areaProdutos");
 
-  if (isAdmin) { areaAdmin.style.display = "block"; areaProdutos.style.display = "none"; carregarPendentes(); carregarClientesAtivos(); }
-  else {
-    areaAdmin.style.display = "none"; areaProdutos.style.display = "block";
+  if (isAdmin) {
+    areaAdmin.style.display = "block";
+    areaDashboard.style.display = "none";
+    areaProdutos.style.display = "none";
+    carregarPendentes();
+    carregarClientesAtivos();
+  } else {
+    areaAdmin.style.display = "none";
+    areaDashboard.style.display = "block";
+    areaProdutos.style.display = "none";
     await carregarMercadoDoUsuario();
     document.getElementById("btnSalvar").addEventListener("click", salvarProduto);
     document.getElementById("btnAtualizar").addEventListener("click", atualizarProduto);
@@ -194,36 +203,19 @@ async function mostrarSistema() {
   }
 }
 
-async function carregarPendentes() {
-  const { data, error } = await supabaseClient.from("perfis").select("*").eq("aprovado", false).order("data_cadastro", { ascending: false });
-  const lista = document.getElementById("listaPendentes");
-  if (error || !data || data.length === 0) { lista.innerHTML = '<div style="color:#6b7280; font-size:14px; padding:8px 0">Nenhum cadastro pendente. ✅</div>'; return; }
-  const userIds = data.map(p => p.user_id);
-  const { data: mercados } = await supabaseClient.from("usuario_mercados").select("user_id").in("user_id", userIds);
-  const jaAprovados = new Set((mercados || []).map(m => m.user_id));
-  lista.innerHTML = data.map(p => {
-    const dataFmt = new Date(p.data_cadastro).toLocaleDateString("pt-BR");
-    const foiDesativado = jaAprovados.has(p.user_id);
-    return `
-      <div style="background:#111827; border:1.5px solid ${foiDesativado ? 'rgba(245,158,11,0.3)' : '#374151'}; border-radius:12px; padding:16px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px">
-        <div>
-          <strong style="color:#e5e7eb; font-size:15px">${p.nome_estabelecimento || "-"}</strong>
-          ${foiDesativado ? '<span style="color:#f59e0b; font-size:11px; margin-left:8px">⚠️ DESATIVADO</span>' : '<span style="color:#3b82f6; font-size:11px; margin-left:8px">🆕 NOVO</span>'}<br>
-          <span style="color:#6b7280; font-size:13px">📧 ${p.email}</span><br>
-          <span style="color:#6b7280; font-size:13px">🏪 ${p.mercado || "-"}</span><br>
-          <span style="color:#6b7280; font-size:12px">📅 ${dataFmt}</span>
-        </div>
-        <div style="display:flex; gap:8px">
-          ${foiDesativado
-            ? `<button class="btn btn-green" style="padding:8px 16px; font-size:13px" onclick="reativarCliente('${p.user_id}', '${p.email}')">🔄 Reativar</button>`
-            : `<button class="btn btn-green" style="padding:8px 16px; font-size:13px" onclick="aprovarCadastro('${p.user_id}', '${p.email}', '${p.mercado || ""}')">✅ Aprovar</button>`
-          }
-          <button class="btn btn-red" style="padding:8px 16px; font-size:13px" onclick="rejeitarCadastro('${p.user_id}', '${p.nome_estabelecimento}')">❌ Rejeitar</button>
-        </div>
-      </div>
-    `;
-  }).join("");
+function abrirEstoque() {
+  document.getElementById("areaDashboard").style.display = "none";
+  document.getElementById("areaProdutos").style.display = "block";
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
+
+function voltarDashboard() {
+  document.getElementById("areaProdutos").style.display = "none";
+  document.getElementById("areaDashboard").style.display = "block";
+  carregarProdutos();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
 
 async function aprovarCadastro(userId, email, mercado) {
   if (!confirm(`Aprovar cadastro de ${email}?`)) return;
